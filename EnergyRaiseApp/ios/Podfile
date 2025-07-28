@@ -1,0 +1,79 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+use_modular_headers!
+
+# Fix for gRPC module map issues
+$RNFirebaseAsStaticFramework = true
+
+target 'EnergyRaiseApp' do
+  config = use_native_modules!
+  
+  # Fix for Hermes build script - set REACT_NATIVE_PATH
+  ENV['REACT_NATIVE_PATH'] = config[:reactNativePath]
+  
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  # Combined fixes for gRPC modulemap and react_runtime module conflict
+  post_install do |installer|
+    # Standard React Native post install
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+    
+    # Fix 1: Automated fix for gRPC modulemap issue
+    grpc_core_modulemap_source = File.join(installer.sandbox.root, 'Target Support Files', 'gRPC-Core', 'gRPC-Core.modulemap')
+    destination_dir = File.join(installer.sandbox.root, 'Headers', 'Private', 'grpc')
+    destination_file = File.join(destination_dir, 'gRPC-Core.modulemap')
+
+    if File.exist?(grpc_core_modulemap_source) && !File.exist?(destination_file)
+      # Create the directory if it doesn't exist
+      FileUtils.mkdir_p(destination_dir) unless File.directory?(destination_dir)
+      # Copy the modulemap file
+      FileUtils.cp(grpc_core_modulemap_source, destination_file)
+      Pod::UI.puts "Copied gRPC-Core.modulemap to #{destination_dir}".green
+    elsif File.exist?(destination_file)
+      Pod::UI.puts "gRPC-Core.modulemap already exists at #{destination_file}".yellow
+    else
+      Pod::UI.warn "gRPC-Core.modulemap not found at #{grpc_core_modulemap_source}. Manual intervention might be needed."
+    end
+
+    # Fix 2: Resolve react_runtime module conflict by renaming one of the modules
+    # Check both Private and Public headers locations
+    %w[Private Public].each do |header_type|
+      react_runtime_dir = File.join(installer.sandbox.root, 'Headers', header_type, 'react_runtime')
+      jsitooling_modulemap = File.join(react_runtime_dir, 'React-jsitooling.modulemap')
+      
+      if File.exist?(jsitooling_modulemap)
+        # Read and check if it needs to be updated
+        modulemap_content = File.read(jsitooling_modulemap)
+        if modulemap_content.include?('module react_runtime {')
+          updated_content = modulemap_content.gsub('module react_runtime {', 'module react_jsitooling {')
+          File.write(jsitooling_modulemap, updated_content)
+          Pod::UI.puts "Fixed react_runtime module conflict in #{header_type} headers by renaming React-jsitooling module".green
+        else
+          Pod::UI.puts "React-jsitooling module already renamed in #{header_type} headers".yellow
+        end
+      end
+    end
+  end
+end
