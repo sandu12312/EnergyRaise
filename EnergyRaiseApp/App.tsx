@@ -5,46 +5,90 @@
  * @format
  */
 
-import React from 'react';
-import { SafeAreaView, StatusBar, Text, View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { WelcomeQuizScreen } from './src/screens/WelcomeQuizScreen';
+import { LoginScreen } from './src/screens/LoginScreen';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 
-function App(): React.JSX.Element {
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <View style={styles.content}>
-        <Text style={styles.title}>EnergyRaise</Text>
-        <Text style={styles.description}>
-          Aplicație pentru echilibru emoțional și enertttgetic, prin remedii
-          naturale și suport psihologic.
-        </Text>
-      </View>
-    </SafeAreaView>
-  );
+type ScreenType = 'welcome-quiz' | 'login' | 'home';
+
+export default function App() {
+  const [currentScreen, setCurrentScreen] =
+    useState<ScreenType>('welcome-quiz');
+
+  const navigateToScreen = (screen: ScreenType) => {
+    setCurrentScreen(screen);
+  };
+
+  const handleWelcomeQuizComplete = () => {
+    setCurrentScreen('login');
+    console.log('Welcome quiz completed, navigating to login...');
+  };
+
+  const handleLogin = () => {
+    setCurrentScreen('home');
+    console.log('Login successful, navigating to home...');
+  };
+
+  // Render current screen
+  switch (currentScreen) {
+    case 'welcome-quiz':
+      return <WelcomeQuizScreen onComplete={handleWelcomeQuizComplete} />;
+
+    case 'login':
+      return <LoginScreen onLogin={handleLogin} />;
+
+    case 'home':
+      return (
+        <SafeAreaView style={styles.homeContainer}>
+          <View style={styles.homeContent}>
+            <Text style={styles.homeTitle}>🎉 Home Screen</Text>
+            <Text style={styles.homeSubtitle}>
+              Login successful! Welcome to EmoBalance.
+            </Text>
+            <Text style={styles.homeNote}>
+              This is a placeholder for the Home Screen that will be implemented
+              next.
+            </Text>
+          </View>
+        </SafeAreaView>
+      );
+
+    default:
+      return <WelcomeQuizScreen onComplete={handleWelcomeQuizComplete} />;
+  }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  homeContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f1f5f9',
   },
-  content: {
+  homeContent: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    alignItems: 'center',
+    paddingHorizontal: 24,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#8FB996',
+  homeTitle: {
+    fontSize: 32,
+    fontWeight: '300',
+    color: '#7c9885',
+    textAlign: 'center',
     marginBottom: 16,
   },
-  description: {
-    fontSize: 16,
-    color: '#333333',
+  homeSubtitle: {
+    fontSize: 18,
+    fontWeight: '400',
+    color: '#475569',
     textAlign: 'center',
+    marginBottom: 24,
+  },
+  homeNote: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#64748b',
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });
-
-export default App;
