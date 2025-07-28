@@ -16,9 +16,15 @@ import { Input } from '../components/ui/Input';
 
 interface LoginScreenProps {
   onLogin: () => void;
+  onGoToRegister: () => void;
+  onForgotPassword: () => void;
 }
 
-export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
+export const LoginScreen: React.FC<LoginScreenProps> = ({
+  onLogin,
+  onGoToRegister,
+  onForgotPassword,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -124,7 +130,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             </View>
 
             <Text style={[styles.title, { color: theme.primary }]}>
-              EmoBalance
+              EnergyRaise
             </Text>
 
             <Text style={[styles.subtitle, { color: theme.textMuted }]}>
@@ -144,12 +150,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           </View>
 
           {/* Login Form - Minimal */}
-          <Card
-            style={{
-              backgroundColor: theme.cardBackground,
-              borderColor: theme.cardBorder,
-            }}
-          >
+          <Card isDarkMode={isDarkMode}>
             <CardContent>
               {/* Card Header */}
               <View style={styles.cardHeader}>
@@ -232,7 +233,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
               {/* Footer Links - Minimal */}
               <View style={styles.footerLinks}>
-                <TouchableOpacity style={styles.link}>
+                <TouchableOpacity
+                  style={styles.link}
+                  onPress={onForgotPassword}
+                >
                   <Text style={[styles.linkText, { color: theme.primary }]}>
                     Ai uitat parola?
                   </Text>
@@ -242,7 +246,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   <Text style={[styles.signupText, { color: theme.textMuted }]}>
                     Nu ai cont?{' '}
                   </Text>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={onGoToRegister}>
                     <Text style={[styles.signupLink, { color: theme.primary }]}>
                       Înregistrează-te gratuit
                     </Text>

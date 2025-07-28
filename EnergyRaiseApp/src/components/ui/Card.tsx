@@ -4,6 +4,7 @@ import { View, StyleSheet, ViewStyle } from 'react-native';
 interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
+  isDarkMode?: boolean;
 }
 
 interface CardContentProps {
@@ -11,8 +12,21 @@ interface CardContentProps {
   style?: ViewStyle;
 }
 
-export const Card: React.FC<CardProps> = ({ children, style }) => {
-  return <View style={[styles.card, style]}>{children}</View>;
+export const Card: React.FC<CardProps> = ({
+  children,
+  style,
+  isDarkMode = false,
+}) => {
+  const cardStyle = {
+    backgroundColor: isDarkMode ? '#2a2a2a' : 'rgba(255, 255, 255, 0.95)',
+    borderColor: isDarkMode
+      ? 'rgba(255, 255, 255, 0.05)'
+      : 'rgba(139, 157, 195, 0.12)',
+    shadowColor: isDarkMode ? '#000000' : '#000000',
+    shadowOpacity: isDarkMode ? 0.25 : 0.15,
+  };
+
+  return <View style={[styles.card, cardStyle, style]}>{children}</View>;
 };
 
 export const CardContent: React.FC<CardContentProps> = ({

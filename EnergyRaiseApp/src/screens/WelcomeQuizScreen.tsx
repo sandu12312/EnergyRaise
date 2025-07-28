@@ -208,12 +208,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
         </TouchableOpacity>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Card
-            style={{
-              backgroundColor: theme.cardBackground,
-              borderColor: theme.cardBorder,
-            }}
-          >
+          <Card isDarkMode={isDarkMode}>
             <CardContent>
               <View
                 style={[
@@ -309,12 +304,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Card
-          style={{
-            backgroundColor: theme.cardBackground,
-            borderColor: theme.cardBorder,
-          }}
-        >
+        <Card isDarkMode={isDarkMode}>
           <CardContent>
             {/* Header - Minimal */}
             <View style={styles.header}>
@@ -329,7 +319,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
                 </Text>
               </View>
               <Text style={[styles.title, { color: theme.primary }]}>
-                Bun venit la EmoBalance
+                Bun venit la EnergyRaise
               </Text>
               <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
                 Descoperă remediile naturale potrivite pentru tine
