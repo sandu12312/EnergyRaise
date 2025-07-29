@@ -96,6 +96,10 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            // Enable shrinking for debug builds to reduce APK size
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -103,6 +107,15 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    // Add configuration to split APKs by ABI to reduce size
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+            universalApk false
         }
     }
 }
