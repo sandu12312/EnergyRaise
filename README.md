@@ -10,7 +10,7 @@ EnergyRaise este o platformă completă dedicată bunăstării emoționale și e
 
 1. **Selectare Emoție + Fișă de recomandări**
 
-   - Interfață intuitivă pentru selectarea stării emoționale curente (din 34 de emoții predefinite)
+   - Interfață intuitivă pentru selectarea stării emoționale curente (din 34 de emoții predefinite) and prepare for
    - Recomandări personalizate de remedii naturale: ceaiuri, tincturi, uleiuri esențiale, capsule
    - Informații despre chakre asociate, alimente benefice și cristale recomandate
    - Integrare marketing afiliat pentru produsele recomandate
