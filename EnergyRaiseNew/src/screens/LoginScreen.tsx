@@ -227,7 +227,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                     styles.loginButton,
                     { backgroundColor: theme.buttonBackground },
                   ])}
-                  isDarkMode={isDarkMode}
+                  //isDarkMode={isDarkMode}
                 />
               </View>
 

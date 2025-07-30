@@ -5,8 +5,9 @@
  * @format
  */
 
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { WelcomeQuizScreen } from './src/screens/WelcomeQuizScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
@@ -16,6 +17,16 @@ type ScreenType = 'welcome' | 'login' | 'register' | 'forgotPassword' | 'home';
 
 const App = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('welcome');
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    // Dă timp modulelor native să se inițializeze
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Navigation handlers
   const handleQuizComplete = () => {
@@ -80,12 +91,37 @@ const App = () => {
     }
   };
 
-  return <View style={styles.container}>{renderScreen()}</View>;
+  // Arată loading screen până se inițializează modulele native
+  if (!isReady) {
+    return (
+      <GestureHandlerRootView style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>EnergyRaise</Text>
+      </GestureHandlerRootView>
+    );
+  }
+
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      {renderScreen()}
+    </GestureHandlerRootView>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0D1A26',
+  },
+  loadingText: {
+    fontSize: 24,
+    fontWeight: '300',
+    color: '#A3C9A8',
+    letterSpacing: -0.5,
   },
   homeContainer: {
     flex: 1,

@@ -1,18 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   StatusBar,
-  TouchableOpacity,
   ScrollView,
   Platform,
-  Animated,
+  Dimensions,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  withRepeat,
+  withSequence,
+  interpolate,
+  runOnJS,
+  Easing,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/Feather';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ProgressBar } from '../components/ui/ProgressBar';
+import { useTheme } from '../hooks/useTheme';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 interface WelcomeQuizProps {
   onComplete: () => void;
@@ -21,380 +37,690 @@ interface WelcomeQuizProps {
 interface QuizQuestion {
   id: number;
   question: string;
+  subtitle?: string;
   answers: {
     text: string;
     emotion: string;
     icon: string;
+    description: string;
   }[];
+}
+
+interface FloatingParticleProps {
+  delay: number;
+  colors: string[];
 }
 
 const welcomeQuizQuestions: QuizQuestion[] = [
   {
     id: 1,
-    question: 'Cum te simți în general în ultima săptămână?',
+    question: 'Cum îți petreci majoritatea zilelor?',
+    subtitle: 'Să înțelegem mai bine stilul tău de viață',
     answers: [
-      { text: 'Foarte bine, plin de energie', emotion: 'happy', icon: '😊' },
-      { text: 'Normal, ca de obicei', emotion: 'neutral', icon: '😐' },
-      { text: 'Puțin stresat/anxios', emotion: 'anxious', icon: '😰' },
-      { text: 'Trist sau deprimat', emotion: 'sad', icon: '😢' },
+      {
+        text: 'Mult stress și presiune',
+        emotion: 'stressed',
+        icon: 'zap',
+        description: 'Ai nevoie de tehnici de relaxare',
+      },
+      {
+        text: 'Echilibru între muncă și odihnă',
+        emotion: 'balanced',
+        icon: 'target',
+        description: 'Vrei să menții echilibrul',
+      },
+      {
+        text: 'Caut mai multă energie și motivație',
+        emotion: 'seeking',
+        icon: 'star',
+        description: 'Ai nevoie de boost energetic',
+      },
     ],
   },
   {
     id: 2,
-    question: 'Ce te preocupă cel mai mult în acest moment?',
+    question: 'Ce te ajută cel mai mult să te relaxezi?',
+    subtitle: 'Descoperim ce funcționează pentru tine',
     answers: [
-      { text: 'Stresul de la muncă', emotion: 'stressed', icon: '💼' },
-      { text: 'Relațiile cu apropiații', emotion: 'worried', icon: '❤️' },
-      { text: 'Sănătatea mea', emotion: 'anxious', icon: '🏥' },
-      { text: 'Nimic în particular', emotion: 'calm', icon: '⭐' },
+      {
+        text: 'Ceaiuri și remedii naturale',
+        emotion: 'natural',
+        icon: 'leaf',
+        description: 'Iubești soluțiile naturale',
+      },
+      {
+        text: 'Meditație și mindfulness',
+        emotion: 'mindful',
+        icon: 'brain',
+        description: 'Preferi exercițiile mentale',
+      },
+      {
+        text: 'Suport profesional și ghidaj',
+        emotion: 'guided',
+        icon: 'heart',
+        description: 'Vrei să fii ghidat de experți',
+      },
     ],
   },
   {
     id: 3,
-    question: 'Cum îți petreci timpul liber de obicei?',
+    question: 'Cât timp poți dedica zilnic pentru tine?',
+    subtitle: 'Să personalizăm experiența ta',
     answers: [
       {
-        text: 'Activități relaxante (lectură, meditație)',
-        emotion: 'calm',
-        icon: '📚',
+        text: '5-10 minute',
+        emotion: 'short',
+        icon: 'moon',
+        description: 'Routine scurte și eficiente',
       },
-      { text: 'Sport și activități fizice', emotion: 'energetic', icon: '🏃' },
-      { text: 'Cu prietenii și familia', emotion: 'happy', icon: '👥' },
       {
-        text: 'Îmi place să stau singur/ă',
-        emotion: 'contemplative',
-        icon: '🤔',
+        text: '15-30 minute',
+        emotion: 'medium',
+        icon: 'sun',
+        description: 'Sesiuni moderate de wellness',
+      },
+      {
+        text: 'Peste 30 minute',
+        emotion: 'long',
+        icon: 'sparkles',
+        description: 'Experiențe profunde de relaxare',
       },
     ],
   },
   {
     id: 4,
-    question: 'Ce te-ar ajuta cel mai mult să te simți mai bine?',
+    question: 'Ce vrei să realizezi în următoarele 30 de zile?',
+    subtitle: 'Să stabilim obiectivele tale',
     answers: [
       {
-        text: 'Remedii naturale și ceaiuri',
-        emotion: 'seeking-calm',
-        icon: '🌿',
+        text: 'Să reduc stresul și anxietatea',
+        emotion: 'reduce_stress',
+        icon: 'heart',
+        description: 'Focus pe liniște și echilibru',
       },
       {
-        text: 'Mai mult timp pentru mine',
-        emotion: 'seeking-peace',
-        icon: '🧘',
+        text: 'Să am mai multă energie și vitalitate',
+        emotion: 'increase_energy',
+        icon: 'zap',
+        description: 'Boost pentru energia fizică',
       },
-      { text: 'Suport emoțional', emotion: 'seeking-support', icon: '🤝' },
-      { text: 'Energie și motivație', emotion: 'seeking-energy', icon: '⚡' },
+      {
+        text: 'Să dezvolt obiceiuri sănătoase',
+        emotion: 'build_habits',
+        icon: 'award',
+        description: 'Construire de rutine pozitive',
+      },
     ],
   },
 ];
 
+// Floating particle component pentru background
+const FloatingParticle: React.FC<FloatingParticleProps> = ({
+  delay,
+  colors,
+}) => {
+  const translateY = useSharedValue(screenHeight);
+  const translateX = useSharedValue(Math.random() * screenWidth);
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.5);
+
+  useEffect(() => {
+    const startAnimation = () => {
+      translateY.value = screenHeight + 50;
+      translateX.value = Math.random() * screenWidth;
+      opacity.value = 0;
+      scale.value = 0.5;
+
+      setTimeout(() => {
+        translateY.value = withTiming(-100, {
+          duration: 3000 + Math.random() * 2000,
+          easing: Easing.out(Easing.quad),
+        });
+        translateX.value = withTiming(
+          translateX.value + (Math.random() - 0.5) * 100,
+          {
+            duration: 3000 + Math.random() * 2000,
+            easing: Easing.inOut(Easing.sin),
+          },
+        );
+        opacity.value = withSequence(
+          withTiming(0.8, { duration: 500 }),
+          withTiming(0.4, { duration: 2000 }),
+          withTiming(0, { duration: 500 }),
+        );
+        scale.value = withSequence(
+          withTiming(1, { duration: 500 }),
+          withTiming(0.8, { duration: 2000 }),
+          withTiming(0.5, { duration: 500 }),
+        );
+      }, delay);
+    };
+
+    startAnimation();
+    const interval = setInterval(startAnimation, 5000 + Math.random() * 3000);
+
+    return () => clearInterval(interval);
+  }, [delay, translateY, translateX, opacity, scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[styles.particle, animatedStyle]}>
+      <LinearGradient colors={colors} style={styles.particleGradient} />
+    </Animated.View>
+  );
+};
+
+// Rotating star component pentru logo
+const RotatingStar: React.FC<{ size?: number; colors: string[] }> = ({
+  size = 32,
+  colors,
+}) => {
+  const rotation = useSharedValue(0);
+
+  useEffect(() => {
+    rotation.value = withRepeat(
+      withTiming(360, {
+        duration: 8000,
+        easing: Easing.linear,
+      }),
+      -1,
+      false,
+    );
+  }, [rotation]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
+
+  return (
+    <Animated.View style={[{ width: size, height: size }, animatedStyle]}>
+      <LinearGradient
+        colors={colors}
+        style={[
+          styles.starContainer,
+          { width: size, height: size, borderRadius: size / 2 },
+        ]}
+      >
+        <Icon name="heart" size={size * 0.6} color="white" />
+      </LinearGradient>
+    </Animated.View>
+  );
+};
+
 export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
   onComplete,
 }) => {
+  const { colors, theme, toggleTheme, isLoading } = useTheme();
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  const handleAnswerSelect = (emotion: string, answerIndex: number) => {
-    setSelectedAnswer(answerIndex);
+  // Animation values
+  const questionScale = useSharedValue(1);
+  const questionOpacity = useSharedValue(1);
+  const cardScale = useSharedValue(0.95);
+  const cardOpacity = useSharedValue(0);
 
-    // Add a small delay to show the green border effect
+  useEffect(() => {
+    // Initial card animation
+    cardScale.value = withSpring(1, {
+      damping: 12,
+      stiffness: 100,
+      mass: 0.8,
+    });
+    cardOpacity.value = withTiming(1, { duration: 800 });
+  }, [cardScale, cardOpacity]);
+
+  useEffect(() => {
+    // Reset selected answer when question changes
+    setSelectedAnswer(null);
+
+    // Question transition animation
+    questionScale.value = withSequence(
+      withTiming(0.95, { duration: 200 }),
+      withSpring(1, { damping: 12, stiffness: 100 }),
+    );
+    questionOpacity.value = withSequence(
+      withTiming(0.7, { duration: 200 }),
+      withTiming(1, { duration: 300 }),
+    );
+  }, [currentQuestion, questionScale, questionOpacity]);
+
+  const handleAnswerSelect = (emotion: string) => {
+    if (isAnimating) return;
+
+    setSelectedAnswer(emotion);
+    setAnswers(prev => ({
+      ...prev,
+      [welcomeQuizQuestions[currentQuestion].id]: emotion,
+    }));
+
     setTimeout(() => {
-      const newAnswers = [...answers, emotion];
-      setAnswers(newAnswers);
-      setSelectedAnswer(null);
-
-      if (currentQuestion < welcomeQuizQuestions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
-      } else {
-        setIsCompleted(true);
-      }
-    }, 300);
+      setIsAnimating(true);
+      setTimeout(() => {
+        if (currentQuestion < welcomeQuizQuestions.length - 1) {
+          setCurrentQuestion(prev => prev + 1);
+        } else {
+          setIsCompleted(true);
+        }
+        setIsAnimating(false);
+      }, 300);
+    }, 500);
   };
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+  const getPersonalizedMessage = () => {
+    const answerValues = Object.values(answers);
+
+    if (
+      answerValues.includes('stressed') ||
+      answerValues.includes('reduce_stress')
+    ) {
+      return {
+        title: 'Meriti Liniște și Echilibru! 🌿',
+        subtitle: 'Stresul nu trebuie să îți controleze viața',
+        benefits: [
+          'Tehnici de respirație personalizate pentru calmarea instantanee',
+          'Ceaiuri terapeutice recomandate de experți',
+          'Acces la psihologi specializați în gestionarea stresului',
+          'Jurnal ghidat pentru procesarea emoțiilor',
+        ],
+      };
+    }
+
+    if (
+      answerValues.includes('seeking') ||
+      answerValues.includes('increase_energy')
+    ) {
+      return {
+        title: 'Energia Ta Naturală Te Așteaptă! ⚡',
+        subtitle: 'Descoperă puterea remediilor naturale',
+        benefits: [
+          'Suplimente naturiste personalizate pentru energia ta',
+          'Routine de morning boost cu rezultate garantate',
+          'Sunetele Solfeggio pentru regenerare energetică',
+          'Tracking inteligent al progresului tău',
+        ],
+      };
+    }
+
+    return {
+      title: 'Calea Spre Wellness Perfect! ✨',
+      subtitle: 'Transformă-ți viața în 30 de zile',
+      benefits: [
+        'Plan personalizat bazat pe profilul tău unic',
+        'Comunitate suportivă și ghidaj profesional',
+        'Remedii naturale certificate și eficiente',
+        'Progres vizibil în primele 7 zile',
+      ],
+    };
   };
 
   const progress = ((currentQuestion + 1) / welcomeQuizQuestions.length) * 100;
   const question = welcomeQuizQuestions[currentQuestion];
 
-  // Perfect dark mode - exactly matching the provided images
-  const theme = {
-    // Dark background exactly like images - pure dark gray/black
-    gradientStart: isDarkMode ? '#1a1a1a' : '#f8fafc',
-    gradientMid: isDarkMode ? '#1e1e1e' : '#f1f5f9',
-    gradientEnd: isDarkMode ? '#222222' : '#e2e8f0',
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: cardScale.value }],
+    opacity: cardOpacity.value,
+  }));
 
-    // Cards - dark gray like in images
-    cardBackground: isDarkMode ? '#2a2a2a' : 'rgba(255, 255, 255, 0.95)',
-    cardBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(139, 157, 195, 0.12)',
+  const questionAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: questionScale.value }],
+    opacity: questionOpacity.value,
+  }));
 
-    // Text colors - pure white like in images
-    textPrimary: isDarkMode ? '#ffffff' : '#1a202c',
-    textSecondary: isDarkMode ? '#ffffff' : '#4a5568',
-    textMuted: isDarkMode ? '#b0b0b0' : '#64748b',
-
-    // Mint green accents exactly like images
-    primary: isDarkMode ? '#9cb59c' : '#7c9885',
-    primaryDark: isDarkMode ? '#7a9f7a' : '#65785c',
-    primaryLight: isDarkMode ? '#b8c9b8' : '#8faa92',
-
-    // Buttons with mint green like images
-    buttonBackground: isDarkMode ? '#9cb59c' : '#7c9885',
-    buttonHover: isDarkMode ? '#7a9f7a' : '#6d8774',
-
-    // Very subtle borders like in images
-    border: isDarkMode
-      ? 'rgba(255, 255, 255, 0.08)'
-      : 'rgba(139, 157, 195, 0.15)',
-    borderActive: isDarkMode ? '#9cb59c' : '#7c9885',
-    borderHover: isDarkMode ? '#b8c9b8' : '#8faa92',
-
-    // Background elements matching images
-    iconBackground: isDarkMode
-      ? 'rgba(156, 181, 156, 0.1)'
-      : 'rgba(124, 152, 133, 0.1)',
-    benefitsBackground: isDarkMode ? '#333333' : 'rgba(124, 152, 133, 0.05)',
-    benefitsBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(124, 152, 133, 0.1)',
-
-    // Theme toggle like in images
-    themeToggleBackground: isDarkMode ? '#333333' : 'rgba(255, 255, 255, 0.9)',
-    themeToggleBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(124, 152, 133, 0.15)',
-  };
-
-  if (isCompleted) {
+  if (isLoading) {
     return (
       <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.gradientStart }]}
+        style={[
+          styles.container,
+          { backgroundColor: colors.backgroundAuroraDark[0] },
+        ]}
       >
+        <View style={styles.loadingContainer}>
+          <RotatingStar colors={[colors.accentGreen, colors.iconEnergy]} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Completion screen
+  if (isCompleted) {
+    const message = getPersonalizedMessage();
+
+    return (
+      <SafeAreaView style={[styles.container]}>
         <StatusBar
-          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor="transparent"
           translucent
         />
 
         {/* Aurora gradient background */}
-        <View
-          style={[
-            styles.gradientBackground,
-            {
-              backgroundColor: theme.gradientStart,
-            },
-          ]}
+        <LinearGradient
+          colors={colors.backgroundAuroraDark}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradientBackground}
         />
 
-        {/* Minimal Theme Toggle */}
-        <TouchableOpacity
-          style={[
-            styles.themeToggle,
-            {
-              backgroundColor: theme.themeToggleBackground,
-              borderColor: theme.themeToggleBorder,
-            },
-          ]}
-          onPress={toggleTheme}
+        {/* Floating particles */}
+        {[...Array(15)].map((_, i) => (
+          <FloatingParticle
+            key={i}
+            delay={i * 200}
+            colors={[colors.accentGreen + '40', colors.iconEnergy + '60']}
+          />
+        ))}
+
+        {/* Theme Toggle */}
+        <GestureDetector
+          gesture={Gesture.Tap().onStart(() => {
+            runOnJS(toggleTheme)();
+          })}
         >
-          <Text style={[styles.themeIcon, { color: theme.textMuted }]}>
-            {isDarkMode ? '☀️' : '🌙'}
-          </Text>
-        </TouchableOpacity>
+          <Animated.View
+            style={[
+              styles.themeToggle,
+              {
+                backgroundColor: colors.themeToggleBackground,
+                borderColor: colors.themeToggleBorder,
+              },
+            ]}
+          >
+            <Icon
+              name={theme === 'dark' ? 'sun' : 'moon'}
+              size={20}
+              color={colors.textMuted}
+            />
+          </Animated.View>
+        </GestureDetector>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Card isDarkMode={isDarkMode}>
-            <CardContent>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: theme.iconBackground },
-                ]}
-              >
-                <Text style={[styles.leafIcon, { color: theme.primary }]}>
-                  🌿
-                </Text>
-              </View>
+          <Animated.View style={cardAnimatedStyle}>
+            <Card variant="glassmorphism" animated>
+              <CardContent>
+                {/* Header */}
+                <View style={styles.completionHeader}>
+                  <RotatingStar
+                    size={64}
+                    colors={[colors.accentGreen, colors.iconEnergy]}
+                  />
+                  <Text
+                    style={[
+                      styles.completionTitle,
+                      { color: colors.accentGreen },
+                    ]}
+                  >
+                    {message.title}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.completionSubtitle,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {message.subtitle}
+                  </Text>
+                </View>
 
-              <Text style={[styles.title, { color: theme.primary }]}>
-                Quiz Completat!
-              </Text>
+                {/* Benefits */}
+                <View style={styles.benefitsSection}>
+                  <Text
+                    style={[styles.benefitsHeader, { color: colors.primary }]}
+                  >
+                    Ce vei primi:
+                  </Text>
 
-              <Text
-                style={[styles.description, { color: theme.textSecondary }]}
-              >
-                Mulțumesc pentru răspunsuri! Pentru recomandări personalizate,
-                te rugăm să te autentifici.
-              </Text>
+                  {message.benefits.map((benefit, index) => (
+                    <Animated.View
+                      key={index}
+                      style={[
+                        styles.benefitItem,
+                        {
+                          backgroundColor: colors.primary + '10',
+                          borderColor: colors.primary + '20',
+                        },
+                      ]}
+                    >
+                      <Icon
+                        name="check-circle"
+                        size={20}
+                        color={colors.accentGreen}
+                      />
+                      <Text
+                        style={[
+                          styles.benefitText,
+                          { color: colors.textPrimary },
+                        ]}
+                      >
+                        {benefit}
+                      </Text>
+                    </Animated.View>
+                  ))}
+                </View>
 
-              <View
-                style={[
-                  styles.benefitsContainer,
-                  {
-                    backgroundColor: theme.benefitsBackground,
-                    borderColor: theme.benefitsBorder,
-                  },
-                ]}
-              >
-                <Text
-                  style={[styles.benefitsText, { color: theme.textPrimary }]}
-                >
-                  🌿 Ceaiuri terapeutice{'\n'}
-                  🌸 Tincturi naturale{'\n'}
-                  🌱 Uleiuri esențiale{'\n'}
-                  💊 Suplimente naturale
-                </Text>
-              </View>
-
-              <Button
-                title="Continuă către Login"
-                onPress={onComplete}
-                style={StyleSheet.flatten([
-                  styles.continueButton,
-                  { backgroundColor: theme.buttonBackground },
-                ])}
-                isDarkMode={isDarkMode}
-              />
-            </CardContent>
-          </Card>
+                {/* CTA Button */}
+                <Button
+                  title="Începe Transformarea Ta"
+                  onPress={onComplete}
+                  fullWidth
+                  icon={<Icon name="arrow-right" size={20} color="white" />}
+                />
+              </CardContent>
+            </Card>
+          </Animated.View>
         </ScrollView>
       </SafeAreaView>
     );
   }
 
+  // Main quiz screen
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.gradientStart }]}
-    >
+    <SafeAreaView style={styles.container}>
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
         translucent
       />
 
       {/* Aurora gradient background */}
-      <View
-        style={[
-          styles.gradientBackground,
-          {
-            backgroundColor: theme.gradientStart,
-          },
-        ]}
+      <LinearGradient
+        colors={colors.backgroundAuroraDark}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBackground}
       />
 
-      {/* Minimal Theme Toggle */}
-      <TouchableOpacity
-        style={[
-          styles.themeToggle,
-          {
-            backgroundColor: theme.themeToggleBackground,
-            borderColor: theme.themeToggleBorder,
-          },
-        ]}
-        onPress={toggleTheme}
+      {/* Floating particles */}
+      {[...Array(20)].map((_, i) => (
+        <FloatingParticle
+          key={i}
+          delay={i * 150}
+          colors={[colors.accentGreen + '30', colors.iconEnergy + '50']}
+        />
+      ))}
+
+      {/* Theme Toggle */}
+      <GestureDetector
+        gesture={Gesture.Tap().onStart(() => {
+          runOnJS(toggleTheme)();
+        })}
       >
-        <Text style={[styles.themeIcon, { color: theme.textMuted }]}>
-          {isDarkMode ? '☀️' : '🌙'}
-        </Text>
-      </TouchableOpacity>
+        <Animated.View
+          style={[
+            styles.themeToggle,
+            {
+              backgroundColor: colors.themeToggleBackground,
+              borderColor: colors.themeToggleBorder,
+            },
+          ]}
+        >
+          <Icon
+            name={theme === 'dark' ? 'sun' : 'moon'}
+            size={20}
+            color={colors.textMuted}
+          />
+        </Animated.View>
+      </GestureDetector>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Card isDarkMode={isDarkMode}>
-          <CardContent>
-            {/* Header - Minimal */}
-            <View style={styles.header}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: theme.iconBackground },
-                ]}
-              >
-                <Text style={[styles.leafIcon, { color: theme.primary }]}>
-                  🌿
-                </Text>
-              </View>
-              <Text style={[styles.title, { color: theme.primary }]}>
-                Bun venit la EmoBalance
-              </Text>
-              <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                Descoperă remediile naturale potrivite pentru tine
-              </Text>
-            </View>
-
-            {/* Progress - Compact */}
-            <View style={styles.progressSection}>
-              <View style={styles.progressInfo}>
-                <Text style={[styles.progressText, { color: theme.textMuted }]}>
-                  Întrebarea {currentQuestion + 1} din{' '}
-                  {welcomeQuizQuestions.length}
+        <Animated.View style={cardAnimatedStyle}>
+          <Card variant="glassmorphism" animated>
+            <CardContent>
+              {/* Header */}
+              <View style={styles.header}>
+                <RotatingStar
+                  size={64}
+                  colors={[colors.accentGreen, colors.iconEnergy]}
+                />
+                <Text style={[styles.title, { color: colors.primary }]}>
+                  EnergyRaise
                 </Text>
                 <Text
-                  style={[styles.progressPercent, { color: theme.primary }]}
+                  style={[styles.subtitle, { color: colors.textSecondary }]}
                 >
-                  {Math.round(progress)}%
+                  Descoperă-ți calea spre echilibru
                 </Text>
               </View>
-              <ProgressBar
-                progress={progress}
-                progressColor={theme.primary}
-                backgroundColor={theme.border}
-              />
-            </View>
 
-            {/* Question - Compact */}
-            <View style={styles.questionSection}>
-              <Text style={[styles.questionText, { color: theme.textPrimary }]}>
-                {question.question}
-              </Text>
-
-              <View style={styles.answersContainer}>
-                {question.answers.map((answer, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.answerButton,
-                      {
-                        borderColor:
-                          selectedAnswer === index
-                            ? theme.borderActive
-                            : theme.border,
-                        borderWidth: selectedAnswer === index ? 2 : 1,
-                        backgroundColor:
-                          selectedAnswer === index
-                            ? isDarkMode
-                              ? 'rgba(156, 181, 156, 0.08)'
-                              : 'rgba(124, 152, 133, 0.06)'
-                            : 'transparent',
-                      },
-                    ]}
-                    onPress={() => handleAnswerSelect(answer.emotion, index)}
-                    activeOpacity={0.8}
+              {/* Progress */}
+              <View style={styles.progressSection}>
+                <View style={styles.progressInfo}>
+                  <Text
+                    style={[styles.progressText, { color: colors.textMuted }]}
                   >
-                    <Text style={[styles.answerIcon, { color: theme.primary }]}>
-                      {answer.icon}
-                    </Text>
-                    <Text
-                      style={[styles.answerText, { color: theme.textPrimary }]}
-                    >
-                      {answer.text}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                    Progres
+                  </Text>
+                  <Text
+                    style={[styles.progressPercent, { color: colors.primary }]}
+                  >
+                    {currentQuestion + 1}/{welcomeQuizQuestions.length}
+                  </Text>
+                </View>
+                <ProgressBar
+                  progress={progress}
+                  progressColors={[colors.accentGreen, colors.iconEnergy]}
+                  backgroundColor={colors.progressBackground}
+                  animated
+                />
               </View>
-            </View>
 
-            {/* Footer - Minimal */}
-            <Text style={[styles.footerText, { color: theme.textMuted }]}>
-              Răspunsurile tale ne vor ajuta să îți oferim recomandări
-              personalizate
-            </Text>
-          </CardContent>
-        </Card>
+              {/* Question */}
+              <Animated.View
+                style={[styles.questionSection, questionAnimatedStyle]}
+              >
+                <Text
+                  style={[styles.questionText, { color: colors.textPrimary }]}
+                >
+                  {question.question}
+                </Text>
+                {question.subtitle && (
+                  <Text
+                    style={[
+                      styles.questionSubtitle,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {question.subtitle}
+                  </Text>
+                )}
+
+                <View style={styles.answersContainer}>
+                  {question.answers.map((answer, index) => {
+                    const isSelected = selectedAnswer === answer.emotion;
+
+                    return (
+                      <GestureDetector
+                        key={index}
+                        gesture={Gesture.Tap().onStart(() => {
+                          if (!isAnimating) {
+                            runOnJS(handleAnswerSelect)(answer.emotion);
+                          }
+                        })}
+                      >
+                        <Animated.View
+                          style={[
+                            styles.answerButton,
+                            {
+                              borderColor: isSelected
+                                ? colors.borderActive
+                                : colors.border,
+                              borderWidth: isSelected ? 2 : 1,
+                              backgroundColor: isSelected
+                                ? colors.primary + '15'
+                                : 'transparent',
+                            },
+                          ]}
+                        >
+                          <View
+                            style={[
+                              styles.answerIconContainer,
+                              {
+                                backgroundColor: isSelected
+                                  ? colors.primary
+                                  : colors.primary + '20',
+                              },
+                            ]}
+                          >
+                            <Icon
+                              name={answer.icon}
+                              size={20}
+                              color={isSelected ? 'white' : colors.primary}
+                            />
+                          </View>
+                          <View style={styles.answerTextContainer}>
+                            <Text
+                              style={[
+                                styles.answerText,
+                                {
+                                  color: colors.textPrimary,
+                                  fontWeight: isSelected ? '600' : '400',
+                                },
+                              ]}
+                            >
+                              {answer.text}
+                            </Text>
+                            <Text
+                              style={[
+                                styles.answerDescription,
+                                { color: colors.textMuted },
+                              ]}
+                            >
+                              {answer.description}
+                            </Text>
+                          </View>
+                          {isSelected && (
+                            <Icon
+                              name="check-circle"
+                              size={20}
+                              color={colors.accentGreen}
+                            />
+                          )}
+                        </Animated.View>
+                      </GestureDetector>
+                    );
+                  })}
+                </View>
+              </Animated.View>
+
+              {/* Footer */}
+              <Text style={[styles.footerText, { color: colors.textMuted }]}>
+                Răspunsurile tale ne vor ajuta să îți oferim recomandări
+                personalizate
+              </Text>
+            </CardContent>
+          </Card>
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -411,60 +737,74 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   themeToggle: {
     position: 'absolute',
     top: 55,
     right: 20,
     zIndex: 10,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  themeIcon: {
-    fontSize: 18,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingVertical: 40,
   },
-  card: {
-    maxWidth: 380,
-    alignSelf: 'center',
-    width: '100%',
+
+  // Particle Animation
+  particle: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    zIndex: 1,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
+  particleGradient: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+
+  // Star Animation
+  starContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    shadowColor: '#A3C9A8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  leafIcon: {
-    fontSize: 28,
+
+  // Main Header
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: Platform.OS === 'ios' ? '200' : '300',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
     textAlign: 'center',
-    marginBottom: 12,
-    letterSpacing: -0.8,
-    lineHeight: 32,
+    marginTop: 16,
+    marginBottom: 8,
+    letterSpacing: -1,
+    lineHeight: 38,
   },
   subtitle: {
     fontSize: 16,
@@ -473,19 +813,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     letterSpacing: -0.2,
+    opacity: 0.9,
   },
+
+  // Progress Section
   progressSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   progressInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   progressText: {
     fontSize: 14,
-    fontWeight: Platform.OS === 'ios' ? '400' : '400',
+    fontWeight: Platform.OS === 'ios' ? '500' : '500',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
     letterSpacing: -0.1,
   },
@@ -495,44 +838,73 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
     letterSpacing: -0.1,
   },
+
+  // Question Section
   questionSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   questionText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: Platform.OS === 'ios' ? '300' : '400',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
     textAlign: 'center',
-    lineHeight: 26,
-    marginBottom: 20,
-    letterSpacing: -0.4,
+    lineHeight: 30,
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
+  questionSubtitle: {
+    fontSize: 16,
+    fontWeight: Platform.OS === 'ios' ? '400' : '400',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+    letterSpacing: -0.2,
+    opacity: 0.8,
+  },
+
+  // Answers
   answersContainer: {
-    gap: 12,
+    gap: 16,
   },
   answerButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderRadius: 16,
     borderWidth: 1,
     backgroundColor: 'transparent',
   },
-  answerIcon: {
-    fontSize: 18,
-    marginRight: 12,
-    width: 24,
-    textAlign: 'center',
+  answerIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  answerTextContainer: {
+    flex: 1,
   },
   answerText: {
-    fontSize: 15,
+    fontSize: 16,
+    fontWeight: Platform.OS === 'ios' ? '500' : '500',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
+    lineHeight: 22,
+    letterSpacing: -0.2,
+    marginBottom: 4,
+  },
+  answerDescription: {
+    fontSize: 14,
     fontWeight: Platform.OS === 'ios' ? '400' : '400',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
-    flex: 1,
-    lineHeight: 20,
+    lineHeight: 18,
     letterSpacing: -0.1,
+    opacity: 0.8,
   },
+
+  // Footer
   footerText: {
     fontSize: 13,
     fontWeight: Platform.OS === 'ios' ? '400' : '400',
@@ -540,34 +912,62 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
     letterSpacing: -0.05,
-    opacity: 0.8,
+    opacity: 0.7,
   },
-  description: {
-    fontSize: 15,
+
+  // Completion Screen
+  completionHeader: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  completionTitle: {
+    fontSize: 28,
+    fontWeight: Platform.OS === 'ios' ? '300' : '400',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 8,
+    letterSpacing: -0.7,
+    lineHeight: 34,
+  },
+  completionSubtitle: {
+    fontSize: 16,
     fontWeight: Platform.OS === 'ios' ? '400' : '400',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 20,
-    letterSpacing: -0.1,
+    letterSpacing: -0.2,
+    opacity: 0.9,
   },
-  benefitsContainer: {
-    borderRadius: 14,
-    borderWidth: 1,
+
+  // Benefits
+  benefitsSection: {
+    marginBottom: 32,
+  },
+  benefitsHeader: {
+    fontSize: 18,
+    fontWeight: Platform.OS === 'ios' ? '500' : '600',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
+    textAlign: 'center',
+    marginBottom: 20,
+    letterSpacing: -0.3,
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 20,
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+    gap: 12,
   },
-  benefitsText: {
+  benefitText: {
     fontSize: 14,
     fontWeight: Platform.OS === 'ios' ? '400' : '400',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
     lineHeight: 20,
-    textAlign: 'center',
     letterSpacing: -0.1,
-  },
-  continueButton: {
-    paddingVertical: 14,
-    borderRadius: 14,
+    flex: 1,
   },
 });
