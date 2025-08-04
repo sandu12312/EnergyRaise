@@ -7,6 +7,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useTheme } from '../../hooks/useTheme';
+import tw from '../../utils/tw';
 
 interface CardProps {
   children: React.ReactNode;
@@ -28,12 +29,15 @@ interface CardHeaderProps {
 export const Card: React.FC<CardProps> = ({
   children,
   style,
-  variant = 'glassmorphism', // Default to glassmorphism ca în imagini
+  variant = 'glassmorphism', // Default to glassmorphism
   animated = false,
 }) => {
-  const { colors, theme } = useTheme();
+  const { theme, colors, updateCounter } = useTheme();
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
+
+  // Create a unique key that changes when theme changes
+  const cardKey = `${theme}-v${updateCounter || 0}`;
 
   React.useEffect(() => {
     if (animated) {
@@ -47,7 +51,7 @@ export const Card: React.FC<CardProps> = ({
         stiffness: 120,
       });
     }
-  }, [animated, scale, opacity]);
+  }, [animated, scale, opacity, theme, updateCounter]);
 
   const animatedStyle = useAnimatedStyle(() => {
     if (!animated) return {};
@@ -60,65 +64,38 @@ export const Card: React.FC<CardProps> = ({
 
   if (variant === 'glassmorphism') {
     return (
-      <Animated.View style={[styles.container, style, animatedStyle]}>
-        {/* Background blur effect - glassmorphism */}
-        <LinearGradient
-          colors={
-            theme === 'dark'
-              ? ['rgba(31, 47, 63, 0.85)', 'rgba(42, 42, 42, 0.9)']
-              : ['rgba(255, 255, 255, 0.85)', 'rgba(248, 250, 252, 0.9)']
-          }
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.glassmorphismCard,
-            {
-              borderColor: colors.cardBorder,
-              shadowColor: theme === 'dark' ? '#000000' : colors.primary,
-              shadowOpacity: theme === 'dark' ? 0.6 : 0.15,
-            },
-          ]}
-        >
-          {/* Optional glow border effect pentru dark mode */}
-          {theme === 'dark' && (
-            <LinearGradient
-              colors={[
-                `${colors.accentGreen}20`,
-                `${colors.iconEnergy}30`,
-                `${colors.accentGreen}20`,
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.glowBorder}
-            />
-          )}
-
-          {/* Content */}
-          <View style={styles.cardContentContainer}>{children}</View>
-        </LinearGradient>
+      <Animated.View
+        key={`card-glass-${cardKey}`}
+        style={[
+          styles.simplifiedCard,
+          {
+            backgroundColor: theme === 'dark' ? '#374151' : '#FFFFFF',
+            borderColor: theme === 'dark' ? '#4B5563' : '#E5E7EB',
+          },
+          style,
+          animatedStyle,
+        ]}
+      >
+        {children}
       </Animated.View>
     );
   }
 
   if (variant === 'elevated') {
     return (
-      <Animated.View style={[styles.container, style, animatedStyle]}>
-        <LinearGradient
-          colors={[colors.cardBackground, colors.surfaceOverlay]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.elevatedCard,
-            {
-              borderColor: colors.cardBorder,
-              shadowColor:
-                theme === 'dark' ? colors.accentGreen : colors.primary,
-              shadowOpacity: theme === 'dark' ? 0.3 : 0.12,
-            },
-          ]}
-        >
-          {children}
-        </LinearGradient>
+      <Animated.View
+        key={`card-elevated-${cardKey}`}
+        style={[
+          styles.simplifiedCard,
+          {
+            backgroundColor: theme === 'dark' ? '#4B5563' : '#F9FAFB',
+            borderColor: theme === 'dark' ? '#6B7280' : '#D1D5DB',
+          },
+          style,
+          animatedStyle,
+        ]}
+      >
+        {children}
       </Animated.View>
     );
   }
@@ -126,13 +103,12 @@ export const Card: React.FC<CardProps> = ({
   // Default variant
   return (
     <Animated.View
+      key={`card-default-${cardKey}`}
       style={[
-        styles.defaultCard,
+        styles.simplifiedCard,
         {
-          backgroundColor: colors.cardBackground,
-          borderColor: colors.cardBorder,
-          shadowColor: theme === 'dark' ? '#000000' : colors.primary,
-          shadowOpacity: theme === 'dark' ? 0.4 : 0.1,
+          backgroundColor: theme === 'dark' ? '#374151' : '#FFFFFF',
+          borderColor: theme === 'dark' ? '#4B5563' : '#E5E7EB',
         },
         style,
         animatedStyle,
@@ -155,70 +131,15 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ children, style }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
-  glassmorphismCard: {
-    borderRadius: 20,
+  simplifiedCard: {
+    borderRadius: 16,
     borderWidth: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 8 },
-        shadowRadius: 24,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
-  },
-  elevatedCard: {
-    borderRadius: 20,
-    borderWidth: 1,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 6 },
-        shadowRadius: 16,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
-  },
-  defaultCard: {
-    borderRadius: 20,
-    borderWidth: 1,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  glowBorder: {
-    position: 'absolute',
-    top: -1,
-    left: -1,
-    right: -1,
-    bottom: -1,
-    borderRadius: 21,
-    zIndex: 0,
-  },
-  cardContentContainer: {
-    position: 'relative',
-    zIndex: 1,
+    padding: 20,
   },
   cardContent: {
-    padding: 24,
+    padding: 0, // Already padded by simplifiedCard
   },
   cardHeader: {
-    padding: 24,
-    paddingBottom: 16,
+    marginBottom: 16,
   },
 });

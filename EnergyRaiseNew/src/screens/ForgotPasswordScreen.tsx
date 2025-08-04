@@ -23,54 +23,14 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-  const isDarkMode = theme === 'dark';
+  const { theme, colors } = useTheme();
 
-  // Perfect dark mode - exactly matching the provided images
-  const themeColors = {
-    // Dark background exactly like images - pure dark gray/black
-    gradientStart: isDarkMode ? '#1a1a1a' : '#f8fafc',
-    gradientMid: isDarkMode ? '#1e1e1e' : '#f1f5f9',
-    gradientEnd: isDarkMode ? '#222222' : '#e2e8f0',
-
-    // Cards - dark gray like in images
-    cardBackground: isDarkMode ? '#2a2a2a' : 'rgba(255, 255, 255, 0.95)',
-    cardBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(139, 157, 195, 0.12)',
-
-    // Text colors - pure white like in images
-    textPrimary: isDarkMode ? '#ffffff' : '#1a202c',
-    textSecondary: isDarkMode ? '#ffffff' : '#4a5568',
-    textMuted: isDarkMode ? '#b0b0b0' : '#64748b',
-
-    // Mint green accents exactly like images
-    primary: isDarkMode ? '#9cb59c' : '#7c9885',
-    primaryDark: isDarkMode ? '#7a9f7a' : '#65785c',
-    primaryLight: isDarkMode ? '#b8c9b8' : '#8faa92',
-
-    // Very subtle borders like in images
-    border: isDarkMode
-      ? 'rgba(255, 255, 255, 0.08)'
-      : 'rgba(139, 157, 195, 0.15)',
-    borderActive: isDarkMode ? '#9cb59c' : '#7c9885',
-    borderHover: isDarkMode ? '#b8c9b8' : '#8faa92',
-
-    // Background elements matching images
-    iconBackground: isDarkMode
-      ? 'rgba(156, 181, 156, 0.1)'
-      : 'rgba(124, 152, 133, 0.1)',
-
-    // Theme toggle like in images
-    themeToggleBackground: isDarkMode ? '#333333' : 'rgba(255, 255, 255, 0.9)',
-    themeToggleBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(124, 152, 133, 0.15)',
-
-    // Success colors for email sent state
-    successBackground: isDarkMode ? '#064e3b' : '#d1fae5',
-    successBorder: isDarkMode ? '#059669' : '#10b981',
-    successText: isDarkMode ? '#6ee7b7' : '#047857',
+  // Simplified color scheme using theme colors
+  const backgroundColors = {
+    screen: theme === 'dark' ? '#1F2937' : '#F9FAFB',
+    success: theme === 'dark' ? '#064e3b' : '#d1fae5',
+    successBorder: theme === 'dark' ? '#059669' : '#10b981',
+    successText: theme === 'dark' ? '#6ee7b7' : '#047857',
   };
 
   const handleSubmit = () => {
@@ -83,44 +43,16 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
   if (isSubmitted) {
     return (
       <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: themeColors.gradientStart },
-        ]}
+        style={[styles.container, { backgroundColor: backgroundColors.screen }]}
       >
-        {/* Theme Toggle */}
-        <TouchableOpacity
-          style={[
-            styles.themeToggle,
-            {
-              backgroundColor: themeColors.themeToggleBackground,
-              borderColor: themeColors.themeToggleBorder,
-            },
-          ]}
-          onPress={toggleTheme}
-        >
-          <Text style={[styles.themeIcon, { color: themeColors.textMuted }]}>
-            {isDarkMode ? '☀️' : '🌙'}
-          </Text>
-        </TouchableOpacity>
-
         {/* Back Button */}
-        <TouchableOpacity
-          style={[
-            styles.backButton,
-            {
-              backgroundColor: themeColors.themeToggleBackground,
-              borderColor: themeColors.themeToggleBorder,
-            },
-          ]}
-          onPress={onBackToLogin}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={onBackToLogin}>
           <View style={styles.arrowContainer}>
             <View
               style={[
                 styles.arrowLeft,
                 {
-                  borderRightColor: themeColors.textMuted,
+                  borderRightColor: colors.textMuted,
                   borderTopColor: 'transparent',
                   borderBottomColor: 'transparent',
                 },
@@ -139,42 +71,45 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             <View
               style={[
                 styles.logoContainer,
-                { backgroundColor: themeColors.successBackground },
+                { backgroundColor: backgroundColors.success },
               ]}
             >
               <Text
-                style={[styles.logoIcon, { color: themeColors.successText }]}
+                style={[
+                  styles.logoIcon,
+                  { color: backgroundColors.successText },
+                ]}
               >
                 ✓
               </Text>
             </View>
 
-            <Text style={[styles.title, { color: themeColors.primary }]}>
+            <Text style={[styles.title, { color: colors.primary }]}>
               Email trimis!
             </Text>
 
-            <Text style={[styles.subtitle, { color: themeColors.textMuted }]}>
+            <Text style={[styles.subtitle, { color: colors.textMuted }]}>
               Verifică-ți inbox-ul pentru instrucțiuni
             </Text>
           </View>
 
           {/* Success Card */}
-          <Card isDarkMode={isDarkMode} style={styles.formCard}>
+          <Card style={styles.formCard}>
             <CardContent style={styles.cardContent}>
               <View style={styles.successContainer}>
                 <View
                   style={[
                     styles.emailInfoContainer,
                     {
-                      backgroundColor: themeColors.successBackground,
-                      borderColor: themeColors.successBorder,
+                      backgroundColor: backgroundColors.success,
+                      borderColor: backgroundColors.successBorder,
                     },
                   ]}
                 >
                   <Text
                     style={[
                       styles.emailIcon,
-                      { color: themeColors.successText },
+                      { color: backgroundColors.successText },
                     ]}
                   >
                     📧
@@ -182,16 +117,13 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
                   <Text
                     style={[
                       styles.emailInfoText,
-                      { color: themeColors.successText },
+                      { color: backgroundColors.successText },
                     ]}
                   >
                     Am trimis instrucțiunile de resetare la:
                   </Text>
                   <Text
-                    style={[
-                      styles.emailAddress,
-                      { color: themeColors.textPrimary },
-                    ]}
+                    style={[styles.emailAddress, { color: colors.textPrimary }]}
                   >
                     {email}
                   </Text>
@@ -201,7 +133,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
                   <Text
                     style={[
                       styles.instructionText,
-                      { color: themeColors.textMuted },
+                      { color: colors.textMuted },
                     ]}
                   >
                     Verifică inbox-ul și folderul spam.
@@ -209,7 +141,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
                   <Text
                     style={[
                       styles.instructionText,
-                      { color: themeColors.textMuted },
+                      { color: colors.textMuted },
                     ]}
                   >
                     Link-ul este valabil 24 de ore.
@@ -219,7 +151,6 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
                 <Button
                   title="Înapoi la login"
                   onPress={onBackToLogin}
-                  isDarkMode={isDarkMode}
                   style={styles.submitButton}
                 />
 
@@ -227,9 +158,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
                   style={styles.resendLink}
                   onPress={() => setIsSubmitted(false)}
                 >
-                  <Text
-                    style={[styles.resendText, { color: themeColors.primary }]}
-                  >
+                  <Text style={[styles.resendText, { color: colors.primary }]}>
                     Nu ai primit email-ul? Încearcă din nou
                   </Text>
                 </TouchableOpacity>
@@ -239,7 +168,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: themeColors.textMuted }]}>
+            <Text style={[styles.footerText, { color: colors.textMuted }]}>
               🌿 Suportul EmoBalance este aici pentru tine
             </Text>
           </View>
@@ -250,41 +179,16 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: themeColors.gradientStart }]}
+      style={[styles.container, { backgroundColor: backgroundColors.screen }]}
     >
-      {/* Theme Toggle */}
-      <TouchableOpacity
-        style={[
-          styles.themeToggle,
-          {
-            backgroundColor: themeColors.themeToggleBackground,
-            borderColor: themeColors.themeToggleBorder,
-          },
-        ]}
-        onPress={toggleTheme}
-      >
-        <Text style={[styles.themeIcon, { color: themeColors.textMuted }]}>
-          {isDarkMode ? '☀️' : '🌙'}
-        </Text>
-      </TouchableOpacity>
-
       {/* Back Button */}
-      <TouchableOpacity
-        style={[
-          styles.backButton,
-          {
-            backgroundColor: themeColors.themeToggleBackground,
-            borderColor: themeColors.themeToggleBorder,
-          },
-        ]}
-        onPress={onBackToLogin}
-      >
+      <TouchableOpacity style={styles.backButton} onPress={onBackToLogin}>
         <View style={styles.arrowContainer}>
           <View
             style={[
               styles.arrowLeft,
               {
-                borderRightColor: themeColors.textMuted,
+                borderRightColor: colors.textMuted,
                 borderTopColor: 'transparent',
                 borderBottomColor: 'transparent',
               },
@@ -303,19 +207,17 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
           <View
             style={[
               styles.logoContainer,
-              { backgroundColor: themeColors.primary + '20' },
+              { backgroundColor: colors.logoBackground },
             ]}
           >
-            <Text style={[styles.logoIcon, { color: themeColors.primary }]}>
-              🌿
-            </Text>
+            <Text style={[styles.logoIcon, { color: colors.primary }]}>🌿</Text>
           </View>
 
-          <Text style={[styles.title, { color: themeColors.primary }]}>
+          <Text style={[styles.title, { color: colors.primary }]}>
             EmoBalance
           </Text>
 
-          <Text style={[styles.subtitle, { color: themeColors.textMuted }]}>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
             Recuperează-ți accesul la cont
           </Text>
         </View>
@@ -332,25 +234,19 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
         </View>
 
         {/* Forgot Password Form */}
-        <Card isDarkMode={isDarkMode} style={styles.formCard}>
+        <Card style={styles.formCard}>
           <CardContent style={styles.cardContent}>
             <View style={styles.formHeader}>
-              <Text
-                style={[styles.formTitle, { color: themeColors.textPrimary }]}
-              >
+              <Text style={[styles.formTitle, { color: colors.textPrimary }]}>
                 Ai uitat parola?
               </Text>
-              <Text
-                style={[styles.formSubtitle, { color: themeColors.textMuted }]}
-              >
+              <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>
                 Introdu email-ul pentru a primi instrucțiuni de resetare
               </Text>
             </View>
 
             <View style={styles.fieldContainer}>
-              <Text
-                style={[styles.label, { color: themeColors.textSecondary }]}
-              >
+              <Text style={[styles.label, { color: colors.textSecondary }]}>
                 Adresa de email
               </Text>
               <Input
@@ -359,12 +255,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                isDarkMode={isDarkMode}
+                isDarkMode={theme === 'dark'}
                 style={styles.input}
               />
-              <Text
-                style={[styles.fieldHelp, { color: themeColors.textMuted }]}
-              >
+              <Text style={[styles.fieldHelp, { color: colors.textMuted }]}>
                 Email-ul asociat contului tău EmoBalance
               </Text>
             </View>
@@ -372,19 +266,13 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             <Button
               title="Trimite instrucțiuni"
               onPress={handleSubmit}
-              isDarkMode={isDarkMode}
               style={styles.submitButton}
             />
 
             <View style={styles.loginLink}>
-              <Text
-                style={[styles.loginText, { color: themeColors.textMuted }]}
-              >
+              <Text style={[styles.loginText, { color: colors.textMuted }]}>
                 Îți amintești parola?{' '}
-                <Text
-                  style={{ color: themeColors.primary }}
-                  onPress={onBackToLogin}
-                >
+                <Text style={{ color: colors.primary }} onPress={onBackToLogin}>
                   Înapoi la login
                 </Text>
               </Text>
@@ -394,15 +282,15 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
               style={[
                 styles.tipContainer,
                 {
-                  backgroundColor: isDarkMode ? '#1e3a8a20' : '#dbeafe',
-                  borderColor: isDarkMode ? '#3b82f6' : '#60a5fa',
+                  backgroundColor: theme === 'dark' ? '#1e3a8a20' : '#dbeafe',
+                  borderColor: theme === 'dark' ? '#3b82f6' : '#60a5fa',
                 },
               ]}
             >
               <Text
                 style={[
                   styles.tipText,
-                  { color: isDarkMode ? '#93c5fd' : '#1e40af' },
+                  { color: theme === 'dark' ? '#93c5fd' : '#1e40af' },
                 ]}
               >
                 💡 Sfat: Verifică și folderul spam după ce trimiți cererea
@@ -413,7 +301,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: themeColors.textMuted }]}>
+          <Text style={[styles.footerText, { color: colors.textMuted }]}>
             🌿 Recuperarea contului în siguranță
           </Text>
         </View>
@@ -426,29 +314,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  themeToggle: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    zIndex: 1000,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
+
   backButton: {
     position: 'absolute',
     top: 50,
@@ -458,23 +324,8 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     zIndex: 1000,
-    flexDirection: 'row', // Ensure perfect centering
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  themeIcon: {
-    fontSize: 20,
   },
   arrowContainer: {
     width: 24,

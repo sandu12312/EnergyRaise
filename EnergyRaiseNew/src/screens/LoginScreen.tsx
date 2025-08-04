@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { useTheme } from '../hooks/useTheme';
 
 interface LoginScreenProps {
   onLogin: () => void;
@@ -28,11 +29,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const { theme, colors } = useTheme();
 
   const handleLogin = () => {
     // Dummy login - any input works
@@ -41,78 +38,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     }
   };
 
-  // Perfect dark mode - exactly matching the provided images
-  const theme = {
-    // Dark background exactly like images - pure dark gray/black
-    gradientStart: isDarkMode ? '#1a1a1a' : '#f8fafc',
-    gradientMid: isDarkMode ? '#1e1e1e' : '#f1f5f9',
-    gradientEnd: isDarkMode ? '#222222' : '#e2e8f0',
-
-    // Cards - dark gray like in images
-    cardBackground: isDarkMode ? '#2a2a2a' : 'rgba(255, 255, 255, 0.95)',
-    cardBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(139, 157, 195, 0.12)',
-
-    // Text colors - pure white like in images
-    textPrimary: isDarkMode ? '#ffffff' : '#1a202c',
-    textSecondary: isDarkMode ? '#ffffff' : '#4a5568',
-    textMuted: isDarkMode ? '#b0b0b0' : '#64748b',
-
-    // Mint green accents exactly like images
-    primary: isDarkMode ? '#9cb59c' : '#7c9885',
-    primaryDark: isDarkMode ? '#7a9f7a' : '#65785c',
-    primaryLight: isDarkMode ? '#b8c9b8' : '#8faa92',
-
-    // Buttons with mint green like images
-    buttonBackground: isDarkMode ? '#9cb59c' : '#7c9885',
-    buttonHover: isDarkMode ? '#7a9f7a' : '#6d8774',
-
-    // Background elements matching images
-    iconBackground: isDarkMode
-      ? 'rgba(156, 181, 156, 0.1)'
-      : 'rgba(124, 152, 133, 0.1)',
-
-    // Theme toggle like in images
-    themeToggleBackground: isDarkMode ? '#333333' : 'rgba(255, 255, 255, 0.9)',
-    themeToggleBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(124, 152, 133, 0.15)',
+  // Simplified background colors
+  const backgroundColors = {
+    screen: theme === 'dark' ? '#1F2937' : '#F9FAFB',
   };
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.gradientStart }]}
+      style={[styles.container, { backgroundColor: backgroundColors.screen }]}
     >
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
         translucent
       />
-
-      {/* Aurora gradient background */}
-      <View
-        style={[
-          styles.gradientBackground,
-          { backgroundColor: theme.gradientStart },
-        ]}
-      />
-
-      {/* Minimal Theme Toggle */}
-      <TouchableOpacity
-        style={[
-          styles.themeToggle,
-          {
-            backgroundColor: theme.themeToggleBackground,
-            borderColor: theme.themeToggleBorder,
-          },
-        ]}
-        onPress={toggleTheme}
-      >
-        <Text style={[styles.themeIcon, { color: theme.textMuted }]}>
-          {isDarkMode ? '☀️' : '🌙'}
-        </Text>
-      </TouchableOpacity>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
@@ -121,19 +60,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             <View
               style={[
                 styles.iconContainer,
-                { backgroundColor: theme.iconBackground },
+                { backgroundColor: colors.logoBackground },
               ]}
             >
-              <Text style={[styles.leafIcon, { color: theme.primary }]}>
+              <Text style={[styles.leafIcon, { color: colors.primary }]}>
                 🌿
               </Text>
             </View>
 
-            <Text style={[styles.title, { color: theme.primary }]}>
+            <Text style={[styles.title, { color: colors.primary }]}>
               EmoBalance
             </Text>
 
-            <Text style={[styles.subtitle, { color: theme.textMuted }]}>
+            <Text style={[styles.subtitle, { color: colors.textMuted }]}>
               Găsește-ți echilibrul emoțional prin remedii naturale
             </Text>
           </View>
@@ -150,14 +89,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </View>
 
           {/* Login Form - Minimal */}
-          <Card isDarkMode={isDarkMode}>
+          <Card>
             <CardContent>
               {/* Card Header */}
               <View style={styles.cardHeader}>
-                <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>
+                <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>
                   Bine ai revenit
                 </Text>
-                <Text style={[styles.cardSubtitle, { color: theme.textMuted }]}>
+                <Text
+                  style={[styles.cardSubtitle, { color: colors.textMuted }]}
+                >
                   Conectează-te la contul tău EmoBalance
                 </Text>
               </View>
@@ -166,7 +107,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               <View style={styles.form}>
                 {/* Email Input */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: theme.textPrimary }]}>
+                  <Text style={[styles.label, { color: colors.textPrimary }]}>
                     Email
                   </Text>
                   <Input
@@ -175,13 +116,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                     placeholder="exemplu@email.com"
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    isDarkMode={isDarkMode}
+                    isDarkMode={theme === 'dark'}
                   />
                 </View>
 
                 {/* Password Input */}
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: theme.textPrimary }]}>
+                  <Text style={[styles.label, { color: colors.textPrimary }]}>
                     Parolă
                   </Text>
                   <Input
@@ -189,7 +130,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                     onChangeText={setPassword}
                     placeholder="Parola ta"
                     secureTextEntry={!showPassword}
-                    isDarkMode={isDarkMode}
+                    isDarkMode={theme === 'dark'}
                     rightElement={
                       <TouchableOpacity
                         onPress={() => setShowPassword(!showPassword)}
@@ -199,17 +140,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                           style={[
                             styles.eyeIconContainer,
                             {
-                              backgroundColor: isDarkMode
-                                ? 'rgba(156, 181, 156, 0.1)'
-                                : 'rgba(124, 152, 133, 0.08)',
-                              borderColor: isDarkMode
-                                ? 'rgba(255, 255, 255, 0.1)'
-                                : 'rgba(124, 152, 133, 0.15)',
+                              backgroundColor: colors.logoBackground,
+                              borderColor: colors.border,
                             },
                           ]}
                         >
                           <Text
-                            style={[styles.eyeIcon, { color: theme.primary }]}
+                            style={[styles.eyeIcon, { color: colors.primary }]}
                           >
                             {showPassword ? '●●' : '○○'}
                           </Text>
@@ -223,11 +160,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                 <Button
                   title="Conectează-te"
                   onPress={handleLogin}
-                  style={StyleSheet.flatten([
-                    styles.loginButton,
-                    { backgroundColor: theme.buttonBackground },
-                  ])}
-                  //isDarkMode={isDarkMode}
+                  style={styles.loginButton}
                 />
               </View>
 
@@ -237,17 +170,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
                   style={styles.link}
                   onPress={onForgotPassword}
                 >
-                  <Text style={[styles.linkText, { color: theme.primary }]}>
+                  <Text style={[styles.linkText, { color: colors.primary }]}>
                     Ai uitat parola?
                   </Text>
                 </TouchableOpacity>
 
                 <View style={styles.signupContainer}>
-                  <Text style={[styles.signupText, { color: theme.textMuted }]}>
+                  <Text
+                    style={[styles.signupText, { color: colors.textMuted }]}
+                  >
                     Nu ai cont?{' '}
                   </Text>
                   <TouchableOpacity onPress={onGoToRegister}>
-                    <Text style={[styles.signupLink, { color: theme.primary }]}>
+                    <Text
+                      style={[styles.signupLink, { color: colors.primary }]}
+                    >
                       Înregistrează-te gratuit
                     </Text>
                   </TouchableOpacity>
@@ -258,7 +195,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
           {/* Footer - Minimal */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: theme.textMuted }]}>
+            <Text style={[styles.footerText, { color: colors.textMuted }]}>
               🌿 Pentru echilibru și bunăstare naturală
             </Text>
           </View>
@@ -272,33 +209,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  gradientBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  themeToggle: {
-    position: 'absolute',
-    top: 55,
-    right: 20,
-    zIndex: 10,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  themeIcon: {
-    fontSize: 18,
-  },
+
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',

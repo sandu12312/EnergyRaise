@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Appearance } from 'react-native';
 
 export type Theme = 'light' | 'dark';
 
 export interface ThemeColors {
-  // Background gradients - exact din imagini
+  // Background gradients
   backgroundAuroraDark: string[];
   backgroundAuroraLight: string[];
 
@@ -15,12 +14,12 @@ export interface ThemeColors {
   cardBorder: string;
   cardGlassBg: string;
 
-  // Text colors - exact din imagini
+  // Text colors
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
 
-  // Accent colors - exact din imagini
+  // Accent colors
   accentGreen: string;
   iconEnergy: string;
   primary: string;
@@ -49,9 +48,8 @@ export interface ThemeColors {
 
 const lightTheme: ThemeColors = {
   // Background exact ca în imagini - gri foarte deschis
-  backgroundAuroraDark: ['#f8fafc', '#f1f5f9', '#e2e8f0'],
-  backgroundAuroraLight: ['#f8fafc', '#f1f5f9', '#e2e8f0'],
-
+  backgroundAuroraDark: ['#ffffff', '#f8fafc', '#f1f5f9'],
+  backgroundAuroraLight: ['#ffffff', '#f8fafc', '#f1f5f9'],
   // Glassmorphism pentru light mode
   surfaceOverlay: 'rgba(255, 255, 255, 0.95)',
   cardBackground: 'rgba(255, 255, 255, 0.85)',
@@ -91,22 +89,22 @@ const lightTheme: ThemeColors = {
 };
 
 const darkTheme: ThemeColors = {
-  // Background exact din specificații - aurora gradient
+  // Background aurora borealis - more subtle
   backgroundAuroraDark: ['#0D1A26', '#132A28', '#1C2F34'],
   backgroundAuroraLight: ['#0D1A26', '#132A28', '#1C2F34'],
 
-  // Glassmorphism pentru dark mode
-  surfaceOverlay: '#1F2F3F',
+  // Glassmorphism pentru dark mode - less intense aurora
+  surfaceOverlay: 'rgba(31, 47, 63, 0.95)',
   cardBackground: 'rgba(31, 47, 63, 0.85)',
   cardBorder: 'rgba(255, 255, 255, 0.05)',
   cardGlassBg: 'rgba(31, 47, 63, 0.75)',
 
-  // Text colors exact din specificații
+  // Text colors
   textPrimary: '#F4F6F7',
   textSecondary: '#9BA8B0',
   textMuted: '#b0b0b0',
 
-  // Accent colors exact din specificații
+  // Accent colors
   accentGreen: '#A3C9A8',
   iconEnergy: '#B2E384',
   primary: '#A3C9A8',
@@ -134,47 +132,36 @@ const darkTheme: ThemeColors = {
 };
 
 export const useTheme = () => {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>('light');
   const [isLoading, setIsLoading] = useState(true);
+  const [updateCounter, setUpdateCounter] = useState(0);
 
   useEffect(() => {
-    loadTheme();
+    loadSystemTheme();
+
+    // Listen for system theme changes
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      if (colorScheme && (colorScheme === 'light' || colorScheme === 'dark')) {
+        setThemeState(colorScheme);
+        setUpdateCounter(prev => prev + 1);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
-  const loadTheme = async () => {
+  const loadSystemTheme = () => {
     try {
-      const savedTheme = await AsyncStorage.getItem('app-theme');
-      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-        setTheme(savedTheme as Theme);
-      } else {
-        // Use system preference
-        const systemTheme = Appearance.getColorScheme() || 'light';
-        setTheme(systemTheme);
-      }
+      const systemTheme = Appearance.getColorScheme() || 'light';
+      setThemeState(systemTheme as Theme);
+      setUpdateCounter(prev => prev + 1);
     } catch (error) {
-      console.error('Error loading theme:', error);
-      setTheme('light');
+      console.error('Error loading system theme:', error);
+      setThemeState('light');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const toggleTheme = async () => {
-    try {
-      const newTheme = theme === 'light' ? 'dark' : 'light';
-      setTheme(newTheme);
-      await AsyncStorage.setItem('app-theme', newTheme);
-    } catch (error) {
-      console.error('Error saving theme:', error);
-    }
-  };
-
-  const setThemeMode = async (newTheme: Theme) => {
-    try {
-      setTheme(newTheme);
-      await AsyncStorage.setItem('app-theme', newTheme);
-    } catch (error) {
-      console.error('Error saving theme:', error);
     }
   };
 
@@ -183,8 +170,7 @@ export const useTheme = () => {
   return {
     theme,
     colors,
-    toggleTheme,
-    setTheme: setThemeMode,
     isLoading,
+    updateCounter,
   };
 };

@@ -78,3 +78,91 @@
 46. Document complex logic with comments and README.md files for features.
 47. Apply SOLID principles and functional programming practices where suitable.
 48. Regularly refactor and review code to maintain technical quality.
+
+## 🚀 Component Architecture - Journal Feature
+
+### Journal Components Overview
+
+The journal feature consists of integrated components that work together to provide a seamless journaling experience:
+
+**Main Components:**
+
+- `JournalScreen.tsx` - Main orchestrating screen with navigation and state management
+- `DailyJournalCard.tsx` - Daily journal entry card with calendar integration
+- `EmotionSelector.tsx` - Grid-based emotion selection with visual feedback
+- `JournalEntryInput.tsx` - Text input with enhanced UX and progress tracking
+- `RecentEntries.tsx` - Display and management of previous journal entries
+- `CalendarModal.tsx` - Calendar popup for date-based entry viewing
+
+### Integration Guidelines
+
+**State Management:**
+
+- Use centralized state in `JournalScreen.tsx` for all components
+- Pass data and callbacks as props to maintain unidirectional data flow
+- Handle view mode switching (`main` | `entry-detail`) at screen level
+
+**Navigation Flow:**
+
+- Main view: Daily card + Emotion selector + Recent entries preview
+- Entry detail view: Full input interface + Complete recent entries list
+- Tab bar automatically hides in entry detail mode for focused writing
+
+**Data Structure:**
+
+```typescript
+interface JournalEntry {
+  id: string;
+  date: string;
+  emotion: Emotion;
+  content: string;
+  timestamp: Date;
+}
+
+interface Emotion {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+}
+```
+
+**Component Communication:**
+
+- `EmotionSelector` → triggers view mode change to entry detail
+- `JournalEntryInput` → validates and saves entries with enhanced feedback
+- `RecentEntries` → allows editing existing entries
+- `CalendarModal` → provides date-based entry access
+
+### UI/UX Standards
+
+**Visual Feedback:**
+
+- Emotion selection: Scale transform + shadow effects + color changes
+- Text input: Dynamic border colors + progress indicators + character counting
+- Save actions: Enhanced alerts with multiple action options
+- Loading states: Smooth transitions between view modes
+
+**Responsive Design:**
+
+- All components adapt to dark/light themes automatically
+- Consistent spacing using 8px/16px/24px multiples
+- Touch targets minimum 44px for accessibility
+- Proper keyboard handling and text input focus management
+
+**Performance Optimizations:**
+
+- React.memo used for emotion buttons to prevent unnecessary re-renders
+- Debounced text input changes for smooth typing experience
+- Lazy loading of recent entries with configurable limits
+- Efficient state updates to minimize re-renders
+
+### Adding New Journal Features
+
+When extending the journal feature:
+
+1. **Follow the existing patterns**: Use similar prop interfaces and state management
+2. **Maintain component isolation**: Each component should be self-contained with clear interfaces
+3. **Update the main screen**: Add new components to `JournalScreen.tsx` with proper integration
+4. **Test thoroughly**: Ensure new features work in both light and dark modes
+5. **Document changes**: Update this section with new component information

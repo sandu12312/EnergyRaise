@@ -46,49 +46,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
     acceptTerms: false,
     receiveNewsletter: false,
   });
-  const { theme, toggleTheme } = useTheme();
-  const isDarkMode = theme === 'dark';
+  const { theme, colors } = useTheme();
 
-  // Perfect dark mode - exactly matching the provided images
-  const themeColors = {
-    // Dark background exactly like images - pure dark gray/black
-    gradientStart: isDarkMode ? '#1a1a1a' : '#f8fafc',
-    gradientMid: isDarkMode ? '#1e1e1e' : '#f1f5f9',
-    gradientEnd: isDarkMode ? '#222222' : '#e2e8f0',
-
-    // Cards - dark gray like in images
-    cardBackground: isDarkMode ? '#2a2a2a' : 'rgba(255, 255, 255, 0.95)',
-    cardBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(139, 157, 195, 0.12)',
-
-    // Text colors - pure white like in images
-    textPrimary: isDarkMode ? '#ffffff' : '#1a202c',
-    textSecondary: isDarkMode ? '#ffffff' : '#4a5568',
-    textMuted: isDarkMode ? '#b0b0b0' : '#64748b',
-
-    // Mint green accents exactly like images
-    primary: isDarkMode ? '#9cb59c' : '#7c9885',
-    primaryDark: isDarkMode ? '#7a9f7a' : '#65785c',
-    primaryLight: isDarkMode ? '#b8c9b8' : '#8faa92',
-
-    // Very subtle borders like in images
-    border: isDarkMode
-      ? 'rgba(255, 255, 255, 0.08)'
-      : 'rgba(139, 157, 195, 0.15)',
-    borderActive: isDarkMode ? '#9cb59c' : '#7c9885',
-    borderHover: isDarkMode ? '#b8c9b8' : '#8faa92',
-
-    // Background elements matching images
-    iconBackground: isDarkMode
-      ? 'rgba(156, 181, 156, 0.1)'
-      : 'rgba(124, 152, 133, 0.1)',
-
-    // Theme toggle like in images
-    themeToggleBackground: isDarkMode ? '#333333' : 'rgba(255, 255, 255, 0.9)',
-    themeToggleBorder: isDarkMode
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(124, 152, 133, 0.15)',
+  // Simplified background colors
+  const backgroundColors = {
+    screen: theme === 'dark' ? '#1F2937' : '#F9FAFB',
   };
 
   const handleInputChange = (
@@ -119,41 +81,16 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: themeColors.gradientStart }]}
+      style={[styles.container, { backgroundColor: backgroundColors.screen }]}
     >
-      {/* Theme Toggle */}
-      <TouchableOpacity
-        style={[
-          styles.themeToggle,
-          {
-            backgroundColor: themeColors.themeToggleBackground,
-            borderColor: themeColors.themeToggleBorder,
-          },
-        ]}
-        onPress={toggleTheme}
-      >
-        <Text style={[styles.themeIcon, { color: themeColors.textMuted }]}>
-          {isDarkMode ? '☀️' : '🌙'}
-        </Text>
-      </TouchableOpacity>
-
       {/* Back Button */}
-      <TouchableOpacity
-        style={[
-          styles.backButton,
-          {
-            backgroundColor: themeColors.themeToggleBackground,
-            borderColor: themeColors.themeToggleBorder,
-          },
-        ]}
-        onPress={onBackToLogin}
-      >
+      <TouchableOpacity style={styles.backButton} onPress={onBackToLogin}>
         <View style={styles.arrowContainer}>
           <View
             style={[
               styles.arrowLeft,
               {
-                borderRightColor: themeColors.textMuted,
+                borderRightColor: colors.textMuted,
                 borderTopColor: 'transparent',
                 borderBottomColor: 'transparent',
               },
@@ -172,19 +109,17 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <View
             style={[
               styles.logoContainer,
-              { backgroundColor: themeColors.primary + '20' },
+              { backgroundColor: colors.logoBackground },
             ]}
           >
-            <Text style={[styles.logoIcon, { color: themeColors.primary }]}>
-              🌿
-            </Text>
+            <Text style={[styles.logoIcon, { color: colors.primary }]}>🌿</Text>
           </View>
 
-          <Text style={[styles.title, { color: themeColors.primary }]}>
+          <Text style={[styles.title, { color: colors.primary }]}>
             EmoBalance
           </Text>
 
-          <Text style={[styles.subtitle, { color: themeColors.textMuted }]}>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
             Alătură-te comunității pentru echilibru energetic
           </Text>
         </View>
@@ -201,17 +136,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         </View>
 
         {/* Register Form */}
-        <Card isDarkMode={isDarkMode} style={styles.formCard}>
+        <Card style={styles.formCard}>
           <CardContent style={styles.cardContent}>
             <View style={styles.formHeader}>
-              <Text
-                style={[styles.formTitle, { color: themeColors.textPrimary }]}
-              >
+              <Text style={[styles.formTitle, { color: colors.textPrimary }]}>
                 Creează cont nou
               </Text>
-              <Text
-                style={[styles.formSubtitle, { color: themeColors.textMuted }]}
-              >
+              <Text style={[styles.formSubtitle, { color: colors.textMuted }]}>
                 Începe călătoria către echilibrul energetic
               </Text>
             </View>
@@ -219,31 +150,27 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             {/* Name Fields */}
             <View style={styles.nameRow}>
               <View style={styles.nameField}>
-                <Text
-                  style={[styles.label, { color: themeColors.textSecondary }]}
-                >
+                <Text style={[styles.label, { color: colors.textSecondary }]}>
                   Prenume
                 </Text>
                 <Input
                   placeholder="Prenumele tău"
                   value={formData.firstName}
                   onChangeText={text => handleInputChange('firstName', text)}
-                  isDarkMode={isDarkMode}
+                  isDarkMode={theme === 'dark'}
                   style={styles.input}
                 />
               </View>
 
               <View style={styles.nameField}>
-                <Text
-                  style={[styles.label, { color: themeColors.textSecondary }]}
-                >
+                <Text style={[styles.label, { color: colors.textSecondary }]}>
                   Nume
                 </Text>
                 <Input
                   placeholder="Numele tău"
                   value={formData.lastName}
                   onChangeText={text => handleInputChange('lastName', text)}
-                  isDarkMode={isDarkMode}
+                  isDarkMode={theme === 'dark'}
                   style={styles.input}
                 />
               </View>
@@ -251,9 +178,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
             {/* Email */}
             <View style={styles.fieldContainer}>
-              <Text
-                style={[styles.label, { color: themeColors.textSecondary }]}
-              >
+              <Text style={[styles.label, { color: colors.textSecondary }]}>
                 Email
               </Text>
               <Input
@@ -262,16 +187,14 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 onChangeText={text => handleInputChange('email', text)}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                isDarkMode={isDarkMode}
+                isDarkMode={theme === 'dark'}
                 style={styles.input}
               />
             </View>
 
             {/* Password */}
             <View style={styles.fieldContainer}>
-              <Text
-                style={[styles.label, { color: themeColors.textSecondary }]}
-              >
+              <Text style={[styles.label, { color: colors.textSecondary }]}>
                 Parolă
               </Text>
               <Input
@@ -284,21 +207,19 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                     style={styles.eyeIcon}
                     onPress={() => setShowPassword(!showPassword)}
                   >
-                    <Text style={{ color: themeColors.textMuted }}>
+                    <Text style={{ color: colors.textMuted }}>
                       {showPassword ? '○○' : '●●'}
                     </Text>
                   </TouchableOpacity>
                 }
-                isDarkMode={isDarkMode}
+                isDarkMode={theme === 'dark'}
                 style={styles.input}
               />
             </View>
 
             {/* Confirm Password */}
             <View style={styles.fieldContainer}>
-              <Text
-                style={[styles.label, { color: themeColors.textSecondary }]}
-              >
+              <Text style={[styles.label, { color: colors.textSecondary }]}>
                 Confirmă parola
               </Text>
               <Input
@@ -313,12 +234,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                     style={styles.eyeIcon}
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    <Text style={{ color: themeColors.textMuted }}>
+                    <Text style={{ color: colors.textMuted }}>
                       {showConfirmPassword ? '○○' : '●●'}
                     </Text>
                   </TouchableOpacity>
                 }
-                isDarkMode={isDarkMode}
+                isDarkMode={theme === 'dark'}
                 style={styles.input}
               />
             </View>
@@ -331,20 +252,17 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   onCheckedChange={checked =>
                     handleInputChange('acceptTerms', checked)
                   }
-                  isDarkMode={isDarkMode}
+                  isDarkMode={theme === 'dark'}
                 />
                 <Text
-                  style={[
-                    styles.checkboxLabel,
-                    { color: themeColors.textMuted },
-                  ]}
+                  style={[styles.checkboxLabel, { color: colors.textMuted }]}
                 >
                   Accept{' '}
-                  <Text style={{ color: themeColors.primary }}>
+                  <Text style={{ color: colors.primary }}>
                     termenii și condițiile
                   </Text>{' '}
                   și{' '}
-                  <Text style={{ color: themeColors.primary }}>
+                  <Text style={{ color: colors.primary }}>
                     politica de confidențialitate
                   </Text>
                 </Text>
@@ -356,13 +274,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   onCheckedChange={checked =>
                     handleInputChange('receiveNewsletter', checked)
                   }
-                  isDarkMode={isDarkMode}
+                  isDarkMode={theme === 'dark'}
                 />
                 <Text
-                  style={[
-                    styles.checkboxLabel,
-                    { color: themeColors.textMuted },
-                  ]}
+                  style={[styles.checkboxLabel, { color: colors.textMuted }]}
                 >
                   Doresc să primesc newsletter cu sfaturi de wellness
                 </Text>
@@ -372,19 +287,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             <Button
               title="Creează contul"
               onPress={handleSubmit}
-              isDarkMode={isDarkMode}
               style={styles.submitButton}
             />
 
             <View style={styles.loginLink}>
-              <Text
-                style={[styles.loginText, { color: themeColors.textMuted }]}
-              >
+              <Text style={[styles.loginText, { color: colors.textMuted }]}>
                 Ai deja cont?{' '}
-                <Text
-                  style={{ color: themeColors.primary }}
-                  onPress={onBackToLogin}
-                >
+                <Text style={{ color: colors.primary }} onPress={onBackToLogin}>
                   Conectează-te aici
                 </Text>
               </Text>
@@ -394,7 +303,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: themeColors.textMuted }]}>
+          <Text style={[styles.footerText, { color: colors.textMuted }]}>
             🌿 Bine ai venit în comunitatea EmoBalance
           </Text>
         </View>
@@ -407,29 +316,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  themeToggle: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    zIndex: 1000,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
+
   backButton: {
     position: 'absolute',
     top: 50,
@@ -439,23 +326,8 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     zIndex: 1000,
-    flexDirection: 'row', // Ensure perfect centering
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  themeIcon: {
-    fontSize: 20,
   },
   arrowContainer: {
     width: 24,

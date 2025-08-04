@@ -22,13 +22,183 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/Feather';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { useTheme } from '../hooks/useTheme';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Simple SVG Icons - Always work!
+const SvgIcon: React.FC<{ name: string; size: number; color: string }> = ({
+  name,
+  size,
+  color,
+}) => {
+  const icons = {
+    zap: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path d="M12 8V4l8 8h-4v4l-8-8h4z" fill={color} />
+        <Path d="M8 12l4-4v3h3l-4 4v-3H8z" fill={color} opacity="0.7" />
+      </Svg>
+    ),
+    target: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Circle cx="12" cy="12" r="3" fill={color} />
+        <Circle
+          cx="12"
+          cy="12"
+          r="7"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+        <Circle
+          cx="12"
+          cy="12"
+          r="11"
+          stroke={color}
+          strokeWidth="1.5"
+          fill="none"
+          opacity="0.5"
+        />
+      </Svg>
+    ),
+    star: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 17l-6.4 4.2L8 14l-6-4.8h7.6L12 2z"
+          fill={color}
+        />
+        <Path
+          d="M12 6l1.2 3.6H17l-3 2.4 1.2 3.6L12 13l-3.2 2.6L10 12l-3-2.4h3.8L12 6z"
+          fill="white"
+          opacity="0.3"
+        />
+      </Svg>
+    ),
+    leaf: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M12 2C18 2 22 6 22 12c0 3-1 6-3 8-1 1-2 2-4 2-3 0-5-2-5-5 0-2 1-4 3-5 1 0 2 0 3 1v-1c0-3-2-5-5-5-2 0-4 1-5 3C5 8 4 6 4 4c0-1 1-2 2-2h6z"
+          fill={color}
+        />
+        <Path
+          d="M12 8c2 0 4 1 5 3-1-1-2-1-3-1-2 1-3 3-3 5 0 2 1 4 3 4-1 1-2 1-3 1-2 0-4-1-5-3 1 1 2 1 3 1 2-1 3-3 3-5 0-2-1-4-3-4 1-1 2-1 3-1z"
+          fill="white"
+          opacity="0.2"
+        />
+      </Svg>
+    ),
+    brain: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M12 3C9 3 7 5 7 8c-2 0-4 2-4 4 0 3 2 5 4 6 1 3 4 3 5 3s4 0 5-3c2-1 4-3 4-6 0-2-2-4-4-4 0-3-2-5-5-5z"
+          fill={color}
+        />
+        <Circle cx="10" cy="10" r="1" fill="white" />
+        <Circle cx="14" cy="10" r="1" fill="white" />
+        <Path
+          d="M9 13c1 1 3 1 4 0"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <Path
+          d="M8 16c2 1 4 1 6 0"
+          stroke="white"
+          strokeWidth="1"
+          strokeLinecap="round"
+          opacity="0.7"
+        />
+      </Svg>
+    ),
+    heart: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+          fill={color}
+        />
+      </Svg>
+    ),
+    moon: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+          fill={color}
+        />
+      </Svg>
+    ),
+    sun: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Circle cx="12" cy="12" r="5" fill={color} />
+        <Path
+          d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </Svg>
+    ),
+    'check-circle': (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Circle cx="12" cy="12" r="10" fill={color} />
+        <Path
+          d="M9 12l2 2 4-4"
+          stroke="white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </Svg>
+    ),
+    'arrow-right': (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M5 12h14M12 5l7 7-7 7"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </Svg>
+    ),
+    sparkles: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"
+          fill={color}
+        />
+        <Path
+          d="M19 3l.5 1.5L21 5l-1.5.5L19 7l-.5-1.5L17 5l1.5-.5L19 3zM9 21l.5 1.5L11 23l-1.5.5L9 25l-.5-1.5L7 23l1.5-.5L9 21z"
+          fill={color}
+        />
+      </Svg>
+    ),
+    award: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Circle
+          cx="12"
+          cy="8"
+          r="6"
+          stroke={color}
+          strokeWidth="2"
+          fill="none"
+        />
+        <Path
+          d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </Svg>
+    ),
+  };
+
+  return icons[name as keyof typeof icons] || icons.star;
+};
 
 interface WelcomeQuizProps {
   onComplete: () => void;
@@ -154,111 +324,35 @@ const welcomeQuizQuestions: QuizQuestion[] = [
   },
 ];
 
-// Floating particle component pentru background
-const FloatingParticle: React.FC<FloatingParticleProps> = ({
-  delay,
-  colors,
-}) => {
-  const translateY = useSharedValue(screenHeight);
-  const translateX = useSharedValue(Math.random() * screenWidth);
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.5);
+// Removed FloatingParticle component for simplified design
 
-  useEffect(() => {
-    const startAnimation = () => {
-      translateY.value = screenHeight + 50;
-      translateX.value = Math.random() * screenWidth;
-      opacity.value = 0;
-      scale.value = 0.5;
-
-      setTimeout(() => {
-        translateY.value = withTiming(-100, {
-          duration: 3000 + Math.random() * 2000,
-          easing: Easing.out(Easing.quad),
-        });
-        translateX.value = withTiming(
-          translateX.value + (Math.random() - 0.5) * 100,
-          {
-            duration: 3000 + Math.random() * 2000,
-            easing: Easing.inOut(Easing.sin),
-          },
-        );
-        opacity.value = withSequence(
-          withTiming(0.8, { duration: 500 }),
-          withTiming(0.4, { duration: 2000 }),
-          withTiming(0, { duration: 500 }),
-        );
-        scale.value = withSequence(
-          withTiming(1, { duration: 500 }),
-          withTiming(0.8, { duration: 2000 }),
-          withTiming(0.5, { duration: 500 }),
-        );
-      }, delay);
-    };
-
-    startAnimation();
-    const interval = setInterval(startAnimation, 5000 + Math.random() * 3000);
-
-    return () => clearInterval(interval);
-  }, [delay, translateY, translateX, opacity, scale]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-    opacity: opacity.value,
-  }));
-
-  return (
-    <Animated.View style={[styles.particle, animatedStyle]}>
-      <LinearGradient colors={colors} style={styles.particleGradient} />
-    </Animated.View>
-  );
-};
-
-// Rotating star component pentru logo
-const RotatingStar: React.FC<{ size?: number; colors: string[] }> = ({
+// Simple static icon component
+const SimpleIcon: React.FC<{ size?: number; color: string }> = ({
   size = 32,
-  colors,
+  color,
 }) => {
-  const rotation = useSharedValue(0);
-
-  useEffect(() => {
-    rotation.value = withRepeat(
-      withTiming(360, {
-        duration: 8000,
-        easing: Easing.linear,
-      }),
-      -1,
-      false,
-    );
-  }, [rotation]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
-  }));
-
   return (
-    <Animated.View style={[{ width: size, height: size }, animatedStyle]}>
-      <LinearGradient
-        colors={colors}
-        style={[
-          styles.starContainer,
-          { width: size, height: size, borderRadius: size / 2 },
-        ]}
-      >
-        <Icon name="heart" size={size * 0.6} color="white" />
-      </LinearGradient>
-    </Animated.View>
+    <View
+      style={[
+        {
+          width: size,
+          height: size,
+          backgroundColor: color,
+          borderRadius: size / 2,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+      ]}
+    >
+      <SvgIcon name="heart" size={size * 0.6} color="white" />
+    </View>
   );
 };
 
 export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
   onComplete,
 }) => {
-  const { colors, theme, toggleTheme, isLoading } = useTheme();
+  const { colors, theme, isLoading } = useTheme();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isCompleted, setIsCompleted] = useState(false);
@@ -383,11 +477,11 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
       <SafeAreaView
         style={[
           styles.container,
-          { backgroundColor: colors.backgroundAuroraDark[0] },
+          { backgroundColor: theme === 'dark' ? '#1F2937' : '#F9FAFB' },
         ]}
       >
         <View style={styles.loadingContainer}>
-          <RotatingStar colors={[colors.accentGreen, colors.iconEnergy]} />
+          <SimpleIcon size={48} color={colors.accentGreen} />
         </View>
       </SafeAreaView>
     );
@@ -398,52 +492,17 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
     const message = getPersonalizedMessage();
 
     return (
-      <SafeAreaView style={[styles.container]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: theme === 'dark' ? '#1F2937' : '#F9FAFB' },
+        ]}
+      >
         <StatusBar
           barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor="transparent"
           translucent
         />
-
-        {/* Aurora gradient background */}
-        <LinearGradient
-          colors={colors.backgroundAuroraDark}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientBackground}
-        />
-
-        {/* Floating particles */}
-        {[...Array(15)].map((_, i) => (
-          <FloatingParticle
-            key={i}
-            delay={i * 200}
-            colors={[colors.accentGreen + '40', colors.iconEnergy + '60']}
-          />
-        ))}
-
-        {/* Theme Toggle */}
-        <GestureDetector
-          gesture={Gesture.Tap().onStart(() => {
-            runOnJS(toggleTheme)();
-          })}
-        >
-          <Animated.View
-            style={[
-              styles.themeToggle,
-              {
-                backgroundColor: colors.themeToggleBackground,
-                borderColor: colors.themeToggleBorder,
-              },
-            ]}
-          >
-            <Icon
-              name={theme === 'dark' ? 'sun' : 'moon'}
-              size={20}
-              color={colors.textMuted}
-            />
-          </Animated.View>
-        </GestureDetector>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Animated.View style={cardAnimatedStyle}>
@@ -451,10 +510,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
               <CardContent>
                 {/* Header */}
                 <View style={styles.completionHeader}>
-                  <RotatingStar
-                    size={64}
-                    colors={[colors.accentGreen, colors.iconEnergy]}
-                  />
+                  <SimpleIcon size={64} color={colors.accentGreen} />
                   <Text
                     style={[
                       styles.completionTitle,
@@ -492,7 +548,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
                         },
                       ]}
                     >
-                      <Icon
+                      <SvgIcon
                         name="check-circle"
                         size={20}
                         color={colors.accentGreen}
@@ -510,12 +566,18 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
                 </View>
 
                 {/* CTA Button */}
-                <Button
-                  title="Începe Transformarea Ta"
-                  onPress={onComplete}
-                  fullWidth
-                  icon={<Icon name="arrow-right" size={20} color="white" />}
-                />
+                <View style={styles.ctaButtonContainer}>
+                  <Button
+                    title="Începe Transformarea Ta"
+                    onPress={onComplete}
+                    variant="default"
+                    size="lg"
+                    fullWidth
+                    icon={
+                      <SvgIcon name="arrow-right" size={20} color="white" />
+                    }
+                  />
+                </View>
               </CardContent>
             </Card>
           </Animated.View>
@@ -526,52 +588,17 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
 
   // Main quiz screen
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: theme === 'dark' ? '#1F2937' : '#F9FAFB' },
+      ]}
+    >
       <StatusBar
         barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
         translucent
       />
-
-      {/* Aurora gradient background */}
-      <LinearGradient
-        colors={colors.backgroundAuroraDark}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradientBackground}
-      />
-
-      {/* Floating particles */}
-      {[...Array(20)].map((_, i) => (
-        <FloatingParticle
-          key={i}
-          delay={i * 150}
-          colors={[colors.accentGreen + '30', colors.iconEnergy + '50']}
-        />
-      ))}
-
-      {/* Theme Toggle */}
-      <GestureDetector
-        gesture={Gesture.Tap().onStart(() => {
-          runOnJS(toggleTheme)();
-        })}
-      >
-        <Animated.View
-          style={[
-            styles.themeToggle,
-            {
-              backgroundColor: colors.themeToggleBackground,
-              borderColor: colors.themeToggleBorder,
-            },
-          ]}
-        >
-          <Icon
-            name={theme === 'dark' ? 'sun' : 'moon'}
-            size={20}
-            color={colors.textMuted}
-          />
-        </Animated.View>
-      </GestureDetector>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Animated.View style={cardAnimatedStyle}>
@@ -579,10 +606,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
             <CardContent>
               {/* Header */}
               <View style={styles.header}>
-                <RotatingStar
-                  size={64}
-                  colors={[colors.accentGreen, colors.iconEnergy]}
-                />
+                <SimpleIcon size={64} color={colors.accentGreen} />
                 <Text style={[styles.title, { color: colors.primary }]}>
                   EnergyRaise
                 </Text>
@@ -672,7 +696,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
                               },
                             ]}
                           >
-                            <Icon
+                            <SvgIcon
                               name={answer.icon}
                               size={20}
                               color={isSelected ? 'white' : colors.primary}
@@ -700,7 +724,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
                             </Text>
                           </View>
                           {isSelected && (
-                            <Icon
+                            <SvgIcon
                               name="check-circle"
                               size={20}
                               color={colors.accentGreen}
@@ -725,39 +749,14 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradientBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  themeToggle: {
-    position: 'absolute',
-    top: 55,
-    right: 20,
-    zIndex: 10,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
   },
   scrollContent: {
     flexGrow: 1,
@@ -766,30 +765,7 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
 
-  // Particle Animation
-  particle: {
-    position: 'absolute',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    zIndex: 1,
-  },
-  particleGradient: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-
-  // Star Animation
-  starContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#A3C9A8',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
+  // Simplified design - removed particle and star animations
 
   // Main Header
   header: {
@@ -969,5 +945,11 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     letterSpacing: -0.1,
     flex: 1,
+  },
+
+  // CTA Button
+  ctaButtonContainer: {
+    marginTop: 8,
+    marginBottom: 4,
   },
 });

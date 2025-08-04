@@ -22,18 +22,8 @@ export const Checkbox: React.FC<CheckboxProps> = ({
 
   const getColors = () => {
     return {
-      backgroundColor: checked
-        ? isDarkMode
-          ? '#9cb59c'
-          : '#7c9885'
-        : 'transparent',
-      borderColor: checked
-        ? isDarkMode
-          ? '#9cb59c'
-          : '#7c9885'
-        : isDarkMode
-        ? 'rgba(255, 255, 255, 0.3)'
-        : 'rgba(139, 157, 195, 0.3)',
+      backgroundColor: checked ? '#A3C9A8' : 'transparent',
+      borderColor: checked ? '#A3C9A8' : '#D1D5DB',
       checkmark: '#ffffff',
     };
   };
@@ -61,11 +51,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
           },
         ]}
       >
-        {checked && (
-          <View
-            style={[styles.checkmark, { backgroundColor: colors.checkmark }]}
-          />
-        )}
+        {checked && <View style={styles.checkmark} />}
       </View>
     </TouchableOpacity>
   );
@@ -85,8 +71,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkmark: {
-    width: 10,
-    height: 10,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 4,
   },
 });

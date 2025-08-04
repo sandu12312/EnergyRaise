@@ -79,66 +79,27 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         style,
       ]}
     >
-      {/* Glow effect pentru progress */}
-      <Animated.View
-        style={[
-          styles.glowContainer,
-          {
-            height: height + 4,
-            borderRadius: (height + 4) / 2,
-          },
-          glowAnimatedStyle,
-        ]}
-      >
-        <LinearGradient
-          colors={[
-            `${progressColors[0]}30`,
-            `${progressColors[1]}50`,
-            `${progressColors[0]}30`,
-          ]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={[
-            styles.glow,
-            {
-              borderRadius: (height + 4) / 2,
-            },
-          ]}
-        />
-      </Animated.View>
-
-      {/* Progress bar principală */}
+      {/* Simple progress bar */}
       <Animated.View
         style={[
           styles.progress,
           {
             height,
             borderRadius: height / 2,
+            backgroundColor: progressColors[0], // Single solid color
           },
           animatedStyle,
         ]}
-      >
-        <LinearGradient
-          colors={progressColors}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={[
-            styles.progressGradient,
-            {
-              borderRadius: height / 2,
-            },
-          ]}
-        />
-      </Animated.View>
+      />
 
-      {/* Indicator rotund la sfârșitul progresului */}
+      {/* Simple indicator */}
       {showIndicator && (
         <Animated.View
           style={[
             styles.indicatorContainer,
             {
               width: '100%',
-              height: height + 4,
+              height: height,
             },
             indicatorAnimatedStyle,
           ]}
@@ -147,34 +108,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
             style={[
               styles.indicator,
               {
-                width: height + 4,
-                height: height + 4,
-                borderRadius: (height + 4) / 2,
-                right: -((height + 4) / 2),
+                width: height + 2,
+                height: height + 2,
+                borderRadius: (height + 2) / 2,
+                backgroundColor: progressColors[0],
+                right: -((height + 2) / 2),
               },
             ]}
-          >
-            <LinearGradient
-              colors={progressColors}
-              style={[
-                styles.indicatorGradient,
-                {
-                  borderRadius: (height + 4) / 2,
-                },
-              ]}
-            />
-            {/* Inner white circle pentru contrast */}
-            <View
-              style={[
-                styles.indicatorInner,
-                {
-                  width: height - 2,
-                  height: height - 2,
-                  borderRadius: (height - 2) / 2,
-                },
-              ]}
-            />
-          </View>
+          />
         </Animated.View>
       )}
     </View>
@@ -184,53 +125,22 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    overflow: 'visible',
     position: 'relative',
-  },
-  glowContainer: {
-    position: 'absolute',
-    top: -2,
-    left: -2,
-    right: -2,
-    zIndex: 0,
-  },
-  glow: {
-    flex: 1,
   },
   progress: {
     position: 'absolute',
     left: 0,
     top: 0,
-    zIndex: 2,
-    overflow: 'hidden',
-  },
-  progressGradient: {
-    flex: 1,
   },
   indicatorContainer: {
     position: 'absolute',
-    top: -2,
-    left: 0,
-    zIndex: 3,
-  },
-  indicator: {
-    position: 'absolute',
-    shadowColor: '#A3C9A8',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    top: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  indicatorGradient: {
-    flex: 1,
+  indicator: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  indicatorInner: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    position: 'absolute',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
 });

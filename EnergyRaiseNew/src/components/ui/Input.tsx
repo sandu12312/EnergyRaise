@@ -39,13 +39,11 @@ export const Input: React.FC<InputProps> = ({
 }) => {
   const getInputColors = () => {
     return {
-      backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
-      borderColor: isDarkMode
-        ? 'rgba(255, 255, 255, 0.1)'
-        : 'rgba(139, 157, 195, 0.15)',
-      borderFocused: isDarkMode ? '#9cb59c' : '#7c9885',
-      text: isDarkMode ? '#ffffff' : '#1a202c',
-      placeholder: isDarkMode ? 'rgba(255, 255, 255, 0.4)' : '#a0aec0',
+      backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+      borderColor: isDarkMode ? '#4B5563' : '#D1D5DB',
+      borderFocused: '#A3C9A8',
+      text: isDarkMode ? '#ffffff' : '#1F2937',
+      placeholder: isDarkMode ? '#9CA3AF' : '#6B7280',
     };
   };
 
@@ -89,33 +87,21 @@ const styles = StyleSheet.create({
   container: {
     height: 48,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
   },
   input: {
     flex: 1,
     height: '100%',
     fontSize: 15,
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Rounded' : 'Roboto',
-    letterSpacing: -0.2,
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'Roboto',
     paddingVertical: 0,
   },
   rightElement: {
     position: 'absolute',
-    right: 0,
+    right: 12,
     height: '100%',
     justifyContent: 'center',
   },

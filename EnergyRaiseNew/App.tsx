@@ -1,17 +1,16 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+ * Energy Raise App
  */
 
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { NavigationContainer } from '@react-navigation/native';
 import { WelcomeQuizScreen } from './src/screens/WelcomeQuizScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
 import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
+import { BottomTabNavigator } from './src/navigation/BottomTabNavigator';
 
 type ScreenType = 'welcome' | 'login' | 'register' | 'forgotPassword' | 'home';
 
@@ -34,6 +33,7 @@ const App = () => {
   };
 
   const handleLogin = () => {
+    // Navigate directly to HomeScreen via tab navigation
     setCurrentScreen('home');
   };
 
@@ -80,11 +80,10 @@ const App = () => {
       case 'forgotPassword':
         return <ForgotPasswordScreen onBackToLogin={handleBackToLogin} />;
       case 'home':
-        // Placeholder for home screen
         return (
-          <View style={styles.homeContainer}>
-            {/* Home screen content will go here */}
-          </View>
+          <NavigationContainer>
+            <BottomTabNavigator />
+          </NavigationContainer>
         );
       default:
         return <WelcomeQuizScreen onComplete={handleQuizComplete} />;
@@ -122,12 +121,6 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: '#A3C9A8',
     letterSpacing: -0.5,
-  },
-  homeContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8fafc',
   },
 });
 
