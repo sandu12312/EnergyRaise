@@ -166,3 +166,83 @@ When extending the journal feature:
 3. **Update the main screen**: Add new components to `JournalScreen.tsx` with proper integration
 4. **Test thoroughly**: Ensure new features work in both light and dark modes
 5. **Document changes**: Update this section with new component information
+
+## ⚡ Component Architecture - Energy Balance Feature
+
+### Energy Balance Components Overview
+
+The Energy Balance feature provides comprehensive energy tracking and visualization capabilities:
+
+**Main Components:**
+
+- `EnergyBalanceScreen.tsx` - Main screen with navigation and state management
+- `EnergyOverviewCard.tsx` - Date display, overall average, and focus area
+- `EnergyLevelDisplay.tsx` - Individual energy type visualization with progress bars
+- `EnergyQuizSection.tsx` - Interactive quiz buttons for energy assessment
+- `WeeklyTipCard.tsx` - Educational tips and recommendations
+- `AffirmationCard.tsx` - Positive affirmations with generation functionality
+- `EnergySummaryCard.tsx` - Overall energy summary and recommendations
+
+### Data Structure
+
+**Energy Balance Data:**
+
+```typescript
+interface EnergyBalanceData {
+  date: string;
+  dayName: string;
+  overallAverage: number;
+  focusArea: {
+    type: "emotional" | "physical" | "mental";
+    name: string;
+    emoji: string;
+  };
+  energyLevels: EnergyLevel[];
+  weeklyTip: WeeklyTip;
+  affirmation: Affirmation;
+  summary: EnergySummary;
+}
+
+interface EnergyLevel {
+  type: "emotional" | "physical" | "mental";
+  name: string;
+  emoji: string;
+  percentage: number;
+  status: "Bun" | "Moderat" | "Scăzut";
+  trend: "Stabil" | "În creștere" | "Scăzut";
+  color: string;
+  icon: string;
+}
+```
+
+### Feature Integration
+
+**Navigation Flow:**
+
+- Accessible via bottom tab navigation
+- Header with back arrow for navigation
+- Theme toggle integration
+- Smooth scrolling experience
+
+**Interactive Elements:**
+
+- Quiz buttons with alert dialogs and future navigation
+- Affirmation generation with random selection
+- Progress bars with dynamic colors based on energy levels
+- Trend indicators with appropriate icons and colors
+
+**Visual Design:**
+
+- Consistent card-based layout matching app theme
+- Dynamic colors based on energy levels (Green: 70%+, Orange: 50-69%, Red: <50%)
+- Emoji integration for better user engagement
+- Responsive design for dark/light themes
+
+### Performance Considerations
+
+**Optimizations Implemented:**
+
+- Efficient re-renders with proper state management
+- Lazy loading of energy data
+- Optimized scroll performance with proper content sizing
+- Memory-efficient component structure

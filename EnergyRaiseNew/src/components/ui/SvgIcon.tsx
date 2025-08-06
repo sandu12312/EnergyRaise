@@ -194,6 +194,156 @@ export const SvgIcon: React.FC<SvgIconProps> = React.memo(
           />
         </Svg>
       ),
+      crown: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M20.8 8.5l-3.6 8.4H6.8L3.2 8.5l4.8 2 3.5-4.6 3.5 4.6 5.8-2z"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill={color}
+            fillOpacity="0.2"
+          />
+          <Path
+            d="M4 19.5h16"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </Svg>
+      ),
+      lock: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M19 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2z"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill={color}
+            fillOpacity="0.1"
+          />
+          <Path
+            d="M7 11V7a5 5 0 0110 0v4"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      mail: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill={color}
+            fillOpacity="0.1"
+          />
+          <Path
+            d="M22 6l-10 7L2 6"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      'log-out': (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Path
+            d="M16 17l5-5-5-5M21 12H9"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      bell: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill={color}
+            fillOpacity="0.1"
+          />
+          <Path
+            d="M13.73 21a2 2 0 01-3.46 0"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      settings: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M12 15a3 3 0 100-6 3 3 0 000 6z"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill={color}
+            fillOpacity="0.1"
+          />
+          <Path
+            d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 010 2.8 2 2 0 01-2.8 0l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-2 2 2 2 0 01-2-2v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 01-2.8 0 2 2 0 010-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 01-2-2 2 2 0 012-2h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 010-2.8 2 2 0 012.8 0l.1.1a1.7 1.7 0 001.8.3h.1a1.7 1.7 0 001-1.5V3a2 2 0 012-2 2 2 0 012 2v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 012.8 0 2 2 0 010 2.8l-.1.1a1.7 1.7 0 00-.3 1.8 1.7 1.7 0 001.5 1H21a2 2 0 012 2 2 2 0 01-2 2h-.1a1.7 1.7 0 00-1.5 1z"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      'chart-bar': (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M18 20V10M12 20V4M6 20v-6"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      user: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Circle
+            cx="12"
+            cy="7"
+            r="4"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill={color}
+            fillOpacity="0.1"
+          />
+        </Svg>
+      ),
     };
 
     const iconComponent = icons[name as keyof typeof icons];

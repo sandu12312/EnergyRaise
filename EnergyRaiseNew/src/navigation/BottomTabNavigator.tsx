@@ -9,6 +9,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { JournalScreen } from '../screens/JournalScreen';
 import { EnergyBalanceScreen } from '../screens/EnergyBalanceScreen';
 import { SoundsScreen } from '../screens/SoundsScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -70,6 +71,24 @@ const TabIcon: React.FC<{ name: string; size: number; color: string }> = ({
         />
       </Svg>
     ),
+    profile: (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M12 11a4 4 0 100-8 4 4 0 000 8z"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </Svg>
+    ),
   };
 
   return icons[name as keyof typeof icons] || icons.home;
@@ -98,6 +117,9 @@ export const BottomTabNavigator: React.FC = () => {
               break;
             case 'SoundsTab':
               iconName = 'sounds';
+              break;
+            case 'ProfileTab':
+              iconName = 'profile';
               break;
             default:
               iconName = 'home';
@@ -156,6 +178,13 @@ export const BottomTabNavigator: React.FC = () => {
         component={SoundsScreen}
         options={{
           tabBarLabel: 'Sounds',
+        }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Profil',
         }}
       />
     </Tab.Navigator>
