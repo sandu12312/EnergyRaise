@@ -132,12 +132,18 @@ const darkTheme: ThemeColors = {
 };
 
 export const useTheme = () => {
-  const [theme, setThemeState] = useState<Theme>('light');
+  // Use system theme exclusively
+  const [theme, setThemeState] = useState<Theme>(
+    (Appearance.getColorScheme() as Theme) || 'light',
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [updateCounter, setUpdateCounter] = useState(0);
 
   useEffect(() => {
-    loadSystemTheme();
+    // Set initial system theme
+    const systemTheme = Appearance.getColorScheme() || 'light';
+    setThemeState(systemTheme as Theme);
+    setIsLoading(false);
 
     // Listen for system theme changes
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
@@ -151,19 +157,6 @@ export const useTheme = () => {
       subscription.remove();
     };
   }, []);
-
-  const loadSystemTheme = () => {
-    try {
-      const systemTheme = Appearance.getColorScheme() || 'light';
-      setThemeState(systemTheme as Theme);
-      setUpdateCounter(prev => prev + 1);
-    } catch (error) {
-      console.error('Error loading system theme:', error);
-      setThemeState('light');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const colors = theme === 'dark' ? darkTheme : lightTheme;
 

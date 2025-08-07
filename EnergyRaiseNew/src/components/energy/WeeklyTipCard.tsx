@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
+import { SvgIcon } from '../ui/SvgIcon';
 
 interface WeeklyTip {
   title: string;
@@ -21,15 +22,29 @@ export const WeeklyTipCard: React.FC<WeeklyTipCardProps> = ({ tip }) => {
       style={[
         styles.card,
         {
-          backgroundColor: isDarkMode ? '#4B5563' : '#F8FAFC',
-          borderColor: isDarkMode ? '#6B7280' : '#E5E7EB',
+          backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.8)' : '#FFFFFF',
+          borderColor: isDarkMode
+            ? 'rgba(75, 85, 99, 0.5)'
+            : 'rgba(229, 231, 235, 0.8)',
         },
       ]}
     >
       {/* Tip Content */}
       <View style={styles.tipContainer}>
         <View style={styles.tipHeader}>
-          <Text style={styles.tipIcon}>{tip.icon}</Text>
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: isDarkMode
+                  ? 'rgba(163, 201, 168, 0.1)'
+                  : 'rgba(163, 201, 168, 0.1)',
+              },
+            ]}
+          >
+            <SvgIcon name="leaf" size={18} color={colors.accentGreen} />
+          </View>
+
           <Text style={[styles.tipTitle, { color: colors.textPrimary }]}>
             {tip.title}
           </Text>
@@ -56,17 +71,21 @@ const styles = StyleSheet.create({
   tipHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
-  tipIcon: {
-    fontSize: 20,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tipTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
   },
   tipContent: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
   },
 });

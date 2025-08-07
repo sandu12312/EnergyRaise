@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import { EnergyQuiz } from '../../data/energyBalanceData';
+import { SvgIcon } from '../ui/SvgIcon';
 
 interface EnergyQuizSectionProps {
   quizzes: EnergyQuiz[];
@@ -16,7 +17,6 @@ export const EnergyQuizSection: React.FC<EnergyQuizSectionProps> = ({
   const isDarkMode = theme === 'dark';
 
   const handleQuizPress = (quiz: EnergyQuiz) => {
-    // For now, show an alert with quiz info
     Alert.alert(
       quiz.title,
       `${quiz.description}\n\nDurată estimată: ${quiz.estimatedTime}`,
@@ -34,6 +34,20 @@ export const EnergyQuizSection: React.FC<EnergyQuizSectionProps> = ({
   const renderQuizButton = (quiz: EnergyQuiz) => {
     const isPrimary = quiz.type === 'primary';
 
+    // Map emojis to SvgIcon names
+    const getIconName = (emoji: string) => {
+      switch (emoji) {
+        case '🧠':
+          return 'brain';
+        case '❤️':
+          return 'heart';
+        case '⚡':
+          return 'zap';
+        default:
+          return 'brain';
+      }
+    };
+
     return (
       <TouchableOpacity
         key={quiz.id}
@@ -44,32 +58,57 @@ export const EnergyQuizSection: React.FC<EnergyQuizSectionProps> = ({
             backgroundColor: isPrimary
               ? '#A3C9A8'
               : isDarkMode
-              ? '#4B5563'
-              : '#F3F4F6',
-            borderColor: isPrimary
-              ? '#A3C9A8'
-              : isDarkMode
-              ? '#6B7280'
-              : '#E5E7EB',
+              ? 'rgba(75, 85, 99, 0.2)'
+              : 'rgba(243, 244, 246, 0.9)',
           },
         ]}
         onPress={() => handleQuizPress(quiz)}
         activeOpacity={0.8}
       >
         <View style={styles.quizContent}>
-          <Text style={styles.quizIcon}>{quiz.icon}</Text>
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: isPrimary
+                  ? 'rgba(255, 255, 255, 0.2)'
+                  : isDarkMode
+                  ? 'rgba(163, 201, 168, 0.1)'
+                  : 'rgba(163, 201, 168, 0.2)',
+              },
+            ]}
+          >
+            <SvgIcon
+              name={getIconName(quiz.icon)}
+              size={isPrimary ? 18 : 16}
+              color={isPrimary ? '#FFFFFF' : colors.textPrimary}
+            />
+          </View>
+
           <Text
             style={[
               styles.quizTitle,
               {
                 color: isPrimary ? '#FFFFFF' : colors.textPrimary,
+                fontSize: isPrimary ? 16 : 14,
               },
             ]}
           >
             {quiz.title}
           </Text>
-          {isPrimary && <Text style={styles.quizArrow}>→</Text>}
+
+          {isPrimary && (
+            <View style={styles.arrowContainer}>
+              <SvgIcon name="arrow-right" size={16} color="#FFFFFF" />
+            </View>
+          )}
         </View>
+
+        {isPrimary && (
+          <Text style={styles.timeEstimate}>
+            Durată estimată: {quiz.estimatedTime}
+          </Text>
+        )}
       </TouchableOpacity>
     );
   };
@@ -82,14 +121,27 @@ export const EnergyQuizSection: React.FC<EnergyQuizSectionProps> = ({
       style={[
         styles.container,
         {
-          backgroundColor: isDarkMode ? '#374151' : '#F8FAFC',
-          borderColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+          backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.8)' : '#FFFFFF',
+          borderColor: isDarkMode
+            ? 'rgba(75, 85, 99, 0.5)'
+            : 'rgba(229, 231, 235, 0.8)',
         },
       ]}
     >
       {/* Section Header */}
       <View style={styles.header}>
-        <Text style={styles.headerIcon}>🎯</Text>
+        <View
+          style={[
+            styles.headerIconContainer,
+            {
+              backgroundColor: isDarkMode
+                ? 'rgba(163, 201, 168, 0.1)'
+                : 'rgba(163, 201, 168, 0.1)',
+            },
+          ]}
+        >
+          <SvgIcon name="target" size={18} color={colors.accentGreen} />
+        </View>
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
           Actualizează-ți Energia
         </Text>
@@ -122,52 +174,65 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     marginBottom: 12,
   },
-  headerIcon: {
-    fontSize: 20,
+  headerIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
   },
   description: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
     marginBottom: 20,
   },
   quizButton: {
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 1,
   },
   primaryButton: {
-    paddingVertical: 18,
+    paddingVertical: 16,
   },
   secondaryButton: {
-    paddingVertical: 14,
+    paddingVertical: 12,
+    flex: 1,
   },
   quizContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    gap: 12,
   },
-  quizIcon: {
-    fontSize: 18,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   quizTitle: {
-    fontSize: 16,
     fontWeight: '600',
-    textAlign: 'center',
     flex: 1,
   },
-  quizArrow: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: '600',
+  arrowContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timeEstimate: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: 8,
+    fontWeight: '500',
   },
   secondaryButtonsContainer: {
     flexDirection: 'row',

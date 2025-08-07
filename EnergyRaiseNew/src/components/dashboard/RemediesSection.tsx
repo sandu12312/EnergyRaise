@@ -7,9 +7,10 @@ import {
   Platform,
   Image,
 } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+// SVG icons are handled by SvgIcon component
 import { Card, CardContent } from '../ui/Card';
 import { useTheme } from '../../hooks/useTheme';
+import { SvgIcon } from '../ui/SvgIcon';
 import type { Remedy } from '../../data/dashboardData';
 
 interface RemediesSectionProps {
@@ -18,44 +19,18 @@ interface RemediesSectionProps {
   onRemedyPress: (remedy: Remedy) => void;
 }
 
-const LeafIcon: React.FC<{ size: number; color: string }> = ({
-  size,
-  color,
-}) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M12 2C18 2 22 6 22 12c0 3-1 6-3 8-1 1-2 2-4 2-3 0-5-2-5-5 0-2 1-4 3-5 1 0 2 0 3 1v-1c0-3-2-5-5-5-2 0-4 1-5 3C5 8 4 6 4 4c0-1 1-2 2-2h6z"
-      fill={color}
-    />
-  </Svg>
-);
+// Arrow right icon now uses SvgIcon component
 
-const ArrowRightIcon: React.FC<{ size: number; color: string }> = ({
-  size,
-  color,
-}) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M5 12h14M12 5l7 7-7 7"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const getTypeIcon = (type: string, size: number = 16) => {
-  const color = '#10B981';
+const getTypeIconName = (type: string) => {
   switch (type) {
     case 'tea':
-      return '☕';
+      return 'cup'; // Assuming we have a cup icon in SvgIcon
     case 'oil':
-      return '🌿';
+      return 'leaf';
     case 'supplement':
-      return '💊';
+      return 'pill'; // Assuming we have a pill icon in SvgIcon
     default:
-      return '🌿';
+      return 'leaf';
   }
 };
 
@@ -108,7 +83,11 @@ const RemedyCard: React.FC<{
               },
             ]}
           >
-            <Text style={styles.typeEmoji}>{getTypeIcon(remedy.type)}</Text>
+            <SvgIcon
+              name={getTypeIconName(remedy.type)}
+              size={16}
+              color="#10B981"
+            />
             <Text style={[styles.typeText, { color: colors.textMuted }]}>
               {remedy.type}
             </Text>
@@ -134,9 +113,9 @@ export const RemediesSection: React.FC<RemediesSectionProps> = ({
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <LeafIcon size={20} color={colors.accentGreen} />
+          <SvgIcon name="leaf" size={22} color={colors.accentGreen} />
           <Text style={[styles.title, { color: colors.textPrimary }]}>
-            🌿 Remedii pentru Tine
+            Remedii pentru Tine
           </Text>
         </View>
         <TouchableOpacity
@@ -147,7 +126,7 @@ export const RemediesSection: React.FC<RemediesSectionProps> = ({
           <Text style={[styles.seeAllText, { color: colors.primary }]}>
             Vezi toate
           </Text>
-          <ArrowRightIcon size={16} color={colors.primary} />
+          <SvgIcon name="arrow-right" size={16} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -241,9 +220,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
   },
-  typeEmoji: {
-    fontSize: 14,
-  },
+
   typeText: {
     fontSize: 12,
     fontWeight: '500',

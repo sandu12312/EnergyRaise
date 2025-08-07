@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path, Circle, Rect } from 'react-native-svg';
 
 interface SvgIconProps {
   name: string;
@@ -53,15 +53,20 @@ export const SvgIcon: React.FC<SvgIconProps> = React.memo(
         </Svg>
       ),
       leaf: (
-        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Svg
+          width={size}
+          height={size}
+          viewBox="0 0 513.319 513.319"
+          fill="none"
+        >
           <Path
-            d="M12 2C18 2 22 6 22 12c0 3-1 6-3 8-1 1-2 2-4 2-3 0-5-2-5-5 0-2 1-4 3-5 1 0 2 0 3 1v-1c0-3-2-5-5-5-2 0-4 1-5 3C5 8 4 6 4 4c0-1 1-2 2-2h6z"
+            d="M308.122,308.451c-13.664,13.381-32.95,16.004-48.034,8.962c-21.018-9.8-31.388-32.497-25.392-55.868 c5.292-20.631,23.97-35.812,44.49-39.741c17.323-3.312,39.927-0.651,62.956-16.898c6.345-4.477,17.003-13.777,27.127-31.729 c-5.91,29.992-17.459,71.672-47.558,102.952c-0.55,0.571-1.111,1.121-1.672,1.672c-2.172,2.121-4.436,4.101-6.783,5.951 C311.37,305.791,309.623,306.973,308.122,308.451z"
             fill={color}
+            opacity="0.3"
           />
           <Path
-            d="M12 8c2 0 4 1 5 3-1-1-2-1-3-1-2 1-3 3-3 5 0 2 1 4 3 4-1 1-2 1-3 1-2 0-4-1-5-3 1 1 2 1 3 1 2-1 3-3 3-5 0-2-1-4-3-4 1-1 2-1 3-1z"
-            fill="white"
-            opacity="0.2"
+            d="M510.923,179.332c-11.96-97.923-68.85-171.196-165.965-175.257c-7.366-0.307-14.366,3.072-17.596,9.665 c-3.23,6.592-2.24,14.396,2.499,19.802c91.657,104.392,7.929,170.435,7.929,170.435c-15.323,16.174-34.638,26.342-56.163,29.424 c-22.068,3.164-44.072-0.347-62.058-9.879c-8.664-4.59-16.764-10.571-24.444-18.251c-41.744-41.744-34.831-127.84-30.362-160.123 c0.74-5.355-1.069-10.749-4.842-14.43c-3.772-3.682-8.999-5.357-14.194-4.479c-131.868,22.273-147.577,146.45-139.444,208.783 c10.308,78.922,72.215,218.033,229.727,264.697c4.132,1.221,8.553,0.904,12.489-0.894c3.936-1.798,7.1-4.959,8.898-8.895 c17.235-37.8,52.776-92.483,106.62-106.755c39.504-10.468,89.471-39.35,120.413-86.645 C518.788,243.426,516.387,219.193,510.923,179.332z M387.82,293.287c-72.861,19.3-109.289,88.003-124.552,125.626 c-123.364-41.211-171.318-148.992-179.625-213.432c-7.57-58.825,10.917-145.645,104.445-163.167 c-2.726,36.146,2.747,133.187,60.885,191.324c10.147,10.147,21.113,18.003,33.057,23.953c24.474,12.977,53.983,17.532,83.078,13.47 c29.304-4.106,56.25-17.903,77.457-39.795c0,0,33.881-33.004,24.444-87.312c37.4,52.698,18.716,106.699-14.771,147.992 C423.335,276.43,404.508,288.874,387.82,293.287z"
+            fill={color}
           />
         </Svg>
       ),
@@ -341,6 +346,142 @@ export const SvgIcon: React.FC<SvgIconProps> = React.memo(
             strokeLinejoin="round"
             fill={color}
             fillOpacity="0.1"
+          />
+        </Svg>
+      ),
+      'arrow-up-right': (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M7 17L17 7M17 7H7M17 7V17"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      'arrow-down-right': (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M7 7L17 17M17 17V7M17 17H7"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      'chart-column': (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M7 7v10M12 11v6M17 15v2"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Rect
+            x="4"
+            y="3"
+            width="16"
+            height="18"
+            rx="2"
+            stroke={color}
+            strokeWidth="2"
+            fill="none"
+          />
+        </Svg>
+      ),
+      'time-clock': (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Circle
+            cx="12"
+            cy="12"
+            r="9"
+            stroke={color}
+            strokeWidth="2"
+            fill="none"
+          />
+          <Path
+            d="M12 7v5l3 3"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </Svg>
+      ),
+      'running-man': (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Circle cx="9" cy="6" r="3" fill={color} />
+          <Path
+            d="M16 14.5l-3-2-2 3.5 1 3 4-1.5v-3z"
+            fill={color}
+            fillOpacity="0.5"
+          />
+          <Path
+            d="M4.5 17.5L9 18l2.5-6.5 3 1.5 1-3.5L12 8l-3 .5L7.5 14l-3 3.5z"
+            stroke={color}
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      cup: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M18 8h1a4 4 0 110 8h-1"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Path
+            d="M5 8h13v9a4 4 0 01-4 4H9a4 4 0 01-4-4V8z"
+            fill={color}
+            fillOpacity="0.2"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Path
+            d="M8 3v5"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Path
+            d="M12 3v5"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ),
+      pill: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M7 20l10-10M10 6l8 8-6 6-8-8 6-6z"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill={color}
+            fillOpacity="0.2"
+          />
+        </Svg>
+      ),
+      minus: (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M5 12h14"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </Svg>
       ),

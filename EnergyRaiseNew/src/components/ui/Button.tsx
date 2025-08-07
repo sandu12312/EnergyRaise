@@ -22,7 +22,7 @@ import tw from '../../utils/tw';
 interface ButtonProps {
   title?: string;
   onPress: () => void;
-  variant?: 'default' | 'outline' | 'ghost';
+  variant?: 'default' | 'outline' | 'ghost' | 'solid';
   size?: 'default' | 'sm' | 'lg';
   disabled?: boolean;
   loading?: boolean;
@@ -30,6 +30,8 @@ interface ButtonProps {
   textStyle?: TextStyle;
   children?: React.ReactNode;
   icon?: React.ReactNode;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   fullWidth?: boolean;
 }
 
@@ -44,6 +46,8 @@ export const Button: React.FC<ButtonProps> = ({
   textStyle,
   children,
   icon,
+  leftIcon,
+  rightIcon,
   fullWidth = false,
 }) => {
   const { theme } = useTheme();
@@ -98,6 +102,7 @@ export const Button: React.FC<ButtonProps> = ({
       default: 'text-white',
       outline: 'text-slate-700',
       ghost: 'text-slate-700',
+      solid: 'text-white',
     };
 
     const sizeClasses = {
@@ -120,18 +125,19 @@ export const Button: React.FC<ButtonProps> = ({
         />
       ) : (
         <>
-          {icon && <>{icon}</>}
+          {(icon || leftIcon) && <>{icon || leftIcon}</>}
           {(title || children) && (
             <Text style={[tw`${getTextClasses()}`, textStyle]}>
               {children || title}
             </Text>
           )}
+          {rightIcon && <>{rightIcon}</>}
         </>
       )}
     </Animated.View>
   );
 
-  if (variant === 'default') {
+  if (variant === 'default' || variant === 'solid') {
     return (
       <TouchableOpacity
         onPress={handlePress}

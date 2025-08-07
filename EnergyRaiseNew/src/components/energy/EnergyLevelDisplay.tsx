@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import { EnergyLevel } from '../../data/energyBalanceData';
+import { SvgIcon } from '../ui/SvgIcon';
 
 interface EnergyLevelDisplayProps {
   energyLevel: EnergyLevel;
@@ -26,36 +27,44 @@ export const EnergyLevelDisplay: React.FC<EnergyLevelDisplayProps> = ({
     }
   };
 
-  const getTrendColor = (trend: string) => {
+  const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'În creștere':
-        return '#A3C9A8';
+        return 'arrow-up-right';
       case 'Stabil':
-        return '#F4A261';
+        return 'minus';
       case 'Scăzut':
-        return '#E07A5F';
+        return 'arrow-down-right';
       default:
-        return colors.textMuted;
+        return 'minus';
     }
   };
+
+  const statusColor = getStatusColor(energyLevel.status);
 
   return (
     <View style={styles.container}>
       {/* Energy Type Header */}
       <View style={styles.header}>
         <View style={styles.typeInfo}>
-          <Text style={styles.emoji}>{energyLevel.emoji}</Text>
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor: isDarkMode
+                  ? 'rgba(163, 201, 168, 0.1)'
+                  : 'rgba(163, 201, 168, 0.1)',
+              },
+            ]}
+          >
+            <Text style={styles.emoji}>{energyLevel.emoji}</Text>
+          </View>
           <Text style={[styles.typeName, { color: colors.textPrimary }]}>
             {energyLevel.name}
           </Text>
         </View>
         <View style={styles.statusInfo}>
-          <Text
-            style={[
-              styles.percentage,
-              { color: getStatusColor(energyLevel.status) },
-            ]}
-          >
+          <Text style={[styles.percentage, { color: statusColor }]}>
             {energyLevel.percentage}%
           </Text>
           <Text style={[styles.status, { color: colors.textMuted }]}>
@@ -64,11 +73,15 @@ export const EnergyLevelDisplay: React.FC<EnergyLevelDisplayProps> = ({
         </View>
       </View>
 
-      {/* Progress Bar */}
+      {/* Progress Bar - Redesigned for minimalism */}
       <View
         style={[
           styles.progressBarContainer,
-          { backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6' },
+          {
+            backgroundColor: isDarkMode
+              ? 'rgba(75, 85, 99, 0.3)'
+              : 'rgba(243, 244, 246, 0.7)',
+          },
         ]}
       >
         <View
@@ -76,35 +89,30 @@ export const EnergyLevelDisplay: React.FC<EnergyLevelDisplayProps> = ({
             styles.progressBar,
             {
               width: `${energyLevel.percentage}%`,
-              backgroundColor: getStatusColor(energyLevel.status),
+              backgroundColor: statusColor,
             },
           ]}
         />
       </View>
 
-      {/* Trend Indicator */}
+      {/* Trend Indicator - Simplified */}
       <View style={styles.trendContainer}>
-        <View style={styles.trendIndicator}>
-          <View
-            style={[
-              styles.trendIcon,
-              { backgroundColor: getTrendColor(energyLevel.trend) },
-            ]}
-          >
-            <Text style={styles.trendEmoji}>
-              {energyLevel.trend === 'În creștere'
-                ? '📈'
-                : energyLevel.trend === 'Stabil'
-                ? '📊'
-                : '📉'}
-            </Text>
-          </View>
-          <Text
-            style={[
-              styles.trendText,
-              { color: getTrendColor(energyLevel.trend) },
-            ]}
-          >
+        <View
+          style={[
+            styles.trendIndicator,
+            {
+              backgroundColor: isDarkMode
+                ? 'rgba(75, 85, 99, 0.2)'
+                : 'rgba(243, 244, 246, 0.9)',
+            },
+          ]}
+        >
+          <SvgIcon
+            name={getTrendIcon(energyLevel.trend)}
+            size={14}
+            color={statusColor}
+          />
+          <Text style={[styles.trendText, { color: colors.textPrimary }]}>
             {energyLevel.trend}
           </Text>
         </View>
@@ -128,34 +136,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   emoji: {
-    fontSize: 24,
+    fontSize: 16,
   },
   typeName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
   },
   statusInfo: {
     alignItems: 'flex-end',
   },
   percentage: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     marginBottom: 2,
   },
   status: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
   },
   progressBarContainer: {
-    height: 8,
-    borderRadius: 4,
+    height: 6,
+    borderRadius: 3,
     marginBottom: 12,
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 3,
   },
   trendContainer: {
     alignItems: 'flex-start',
@@ -163,20 +178,13 @@ const styles = StyleSheet.create({
   trendIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  trendIcon: {
-    width: 24,
-    height: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  trendEmoji: {
-    fontSize: 12,
+    gap: 4,
   },
   trendText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
   },
 });

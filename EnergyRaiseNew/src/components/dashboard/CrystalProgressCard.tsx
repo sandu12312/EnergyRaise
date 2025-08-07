@@ -37,12 +37,22 @@ const TierBadge: React.FC<{ tier: string; colors: any }> = ({
     style={[
       styles.tierBadge,
       {
-        backgroundColor: colors.logoBackground,
-        borderColor: colors.border,
+        backgroundColor: colors.logoBackgroundActive,
+        borderColor: colors.borderActive,
+        shadowColor: colors.accentGreen,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 4,
       },
     ]}
   >
-    <Text style={[styles.tierText, { color: colors.textSecondary }]}>
+    <Text
+      style={[
+        styles.tierText,
+        { color: colors.textSecondary, fontWeight: '600' },
+      ]}
+    >
       {tier}
     </Text>
   </View>
@@ -75,12 +85,15 @@ export const CrystalProgressCard: React.FC<CrystalProgressCardProps> = ({
             progress={progressPercentage}
             progressColors={[colors.accentGreen, colors.primaryLight]}
             backgroundColor={colors.progressBackground}
-            height={12}
+            height={14}
             animated
             showIndicator
           />
           <Text style={[styles.progressText, { color: colors.textMuted }]}>
-            {data.current} / {data.total} pentru {data.nextTier}
+            <Text style={{ fontWeight: '600', color: colors.textSecondary }}>
+              {data.current}
+            </Text>{' '}
+            / {data.total} pentru {data.nextTier}
           </Text>
         </View>
 
@@ -93,8 +106,9 @@ export const CrystalProgressCard: React.FC<CrystalProgressCardProps> = ({
         <Button
           title="Vezi Beneficiile"
           onPress={onSeeBenefits}
-          variant="outline"
+          variant="solid"
           style={styles.benefitsButton}
+          leftIcon={<DiamondIcon size={16} color="white" />}
         />
       </CardContent>
     </Card>
@@ -151,6 +165,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   benefitsButton: {
-    marginTop: 4,
+    marginTop: 8,
+    borderRadius: 12,
+    shadowColor: '#A3C9A8',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
 });

@@ -3,14 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  StatusBar,
   Alert,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 import { SvgIcon } from '../components/ui/SvgIcon';
+import { ScreenWrapper } from '../components/ui/ScreenWrapper';
+import { NotificationBell } from '../components/ui/NotificationBell';
 import { EnergyOverviewCard } from '../components/energy/EnergyOverviewCard';
 import { EnergyLevelDisplay } from '../components/energy/EnergyLevelDisplay';
 import { EnergyQuizSection } from '../components/energy/EnergyQuizSection';
@@ -58,40 +58,34 @@ export const EnergyBalanceScreen: React.FC<EnergyBalanceScreenProps> = ({
     );
   };
 
+  const handleProfilePress = () => {
+    Alert.alert('Profile', 'Your profile settings will appear here.');
+  };
+
+  const backButton = (
+    <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+      <SvgIcon name="arrow-left" size={24} color={colors.textPrimary} />
+    </TouchableOpacity>
+  );
+
+  const notificationBell = (
+    <NotificationBell
+      hasNotifications={false}
+      onPress={() =>
+        Alert.alert('Notifications', 'Your notifications will appear here.')
+      }
+    />
+  );
+
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB' },
-      ]}
+    <ScreenWrapper
+      title="Energy Balance"
+      rightIcon={notificationBell}
+      headerStyle={styles.header}
+      titleStyle={styles.headerTitle}
+      showProfileIcon={true}
+      onProfilePress={handleProfilePress}
     >
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={isDarkMode ? '#1F2937' : '#F9FAFB'}
-      />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <SvgIcon name="arrow-left" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
-
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-          Energy Balance
-        </Text>
-
-        <TouchableOpacity
-          onPress={handleThemeToggle}
-          style={styles.themeButton}
-        >
-          <SvgIcon
-            name={isDarkMode ? 'sun' : 'moon'}
-            size={24}
-            color={colors.textMuted}
-          />
-        </TouchableOpacity>
-      </View>
-
       {/* Content */}
       <ScrollView
         style={styles.scrollView}
@@ -106,13 +100,26 @@ export const EnergyBalanceScreen: React.FC<EnergyBalanceScreenProps> = ({
           style={[
             styles.energyLevelsCard,
             {
-              backgroundColor: isDarkMode ? '#4B5563' : '#F8FAFC',
-              borderColor: isDarkMode ? '#6B7280' : '#E5E7EB',
+              backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.8)' : '#FFFFFF',
+              borderColor: isDarkMode
+                ? 'rgba(75, 85, 99, 0.5)'
+                : 'rgba(229, 231, 235, 0.8)',
             },
           ]}
         >
           <View style={styles.energyLevelsHeader}>
-            <Text style={styles.energyLevelsIcon}>⚡</Text>
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor: isDarkMode
+                    ? 'rgba(163, 201, 168, 0.1)'
+                    : 'rgba(163, 201, 168, 0.1)',
+                },
+              ]}
+            >
+              <SvgIcon name="zap" size={18} color={colors.accentGreen} />
+            </View>
             <Text
               style={[styles.energyLevelsTitle, { color: colors.textPrimary }]}
             >
@@ -120,7 +127,7 @@ export const EnergyBalanceScreen: React.FC<EnergyBalanceScreenProps> = ({
             </Text>
           </View>
 
-          {currentData.energyLevels.map((energyLevel, index) => (
+          {currentData.energyLevels.map(energyLevel => (
             <EnergyLevelDisplay
               key={energyLevel.type}
               energyLevel={energyLevel}
@@ -146,34 +153,21 @@ export const EnergyBalanceScreen: React.FC<EnergyBalanceScreenProps> = ({
         {/* Energy Summary */}
         <EnergySummaryCard summary={currentData.summary} />
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    paddingVertical: 12,
   },
   backButton: {
     padding: 4,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     textAlign: 'center',
-    flex: 1,
-  },
-  themeButton: {
-    padding: 4,
   },
   scrollView: {
     flex: 1,
@@ -192,14 +186,18 @@ const styles = StyleSheet.create({
   energyLevelsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
     marginBottom: 20,
   },
-  energyLevelsIcon: {
-    fontSize: 20,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   energyLevelsTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
   },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
+import { SvgIcon } from '../ui/SvgIcon';
 
 interface EnergySummary {
   generalAverage: number;
@@ -18,19 +19,41 @@ export const EnergySummaryCard: React.FC<EnergySummaryCardProps> = ({
   const { theme, colors } = useTheme();
   const isDarkMode = theme === 'dark';
 
+  // Get appropriate color for energy level
+  const getEnergyColor = (percentage: number) => {
+    if (percentage >= 70) return '#A3C9A8';
+    if (percentage >= 50) return '#F4A261';
+    return '#E07A5F';
+  };
+
+  const averageColor = getEnergyColor(summary.generalAverage);
+
   return (
     <View
       style={[
         styles.card,
         {
-          backgroundColor: isDarkMode ? '#4B5563' : '#F8FAFC',
-          borderColor: isDarkMode ? '#6B7280' : '#E5E7EB',
+          backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.8)' : '#FFFFFF',
+          borderColor: isDarkMode
+            ? 'rgba(75, 85, 99, 0.5)'
+            : 'rgba(229, 231, 235, 0.8)',
         },
       ]}
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerIcon}>🎯</Text>
+        <View
+          style={[
+            styles.iconContainer,
+            {
+              backgroundColor: isDarkMode
+                ? 'rgba(163, 201, 168, 0.1)'
+                : 'rgba(163, 201, 168, 0.1)',
+            },
+          ]}
+        >
+          <SvgIcon name="target" size={18} color={colors.accentGreen} />
+        </View>
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
           Rezumatul Energiei
         </Text>
@@ -40,21 +63,40 @@ export const EnergySummaryCard: React.FC<EnergySummaryCardProps> = ({
       <View style={styles.summaryContent}>
         {/* General Average */}
         <View style={styles.summaryRow}>
-          <Text style={[styles.summaryLabel, { color: '#A3C9A8' }]}>
+          <Text style={[styles.summaryLabel, { color: colors.textPrimary }]}>
             Media generală:
           </Text>
-          <Text style={[styles.summaryValue, { color: '#A3C9A8' }]}>
-            {summary.generalAverage}%
-          </Text>
+          <View style={styles.averageContainer}>
+            <Text style={[styles.summaryValue, { color: averageColor }]}>
+              {summary.generalAverage}%
+            </Text>
+            <View
+              style={[
+                styles.averageIndicator,
+                { backgroundColor: averageColor },
+              ]}
+            />
+          </View>
         </View>
 
         {/* Focus Area */}
         <View style={styles.summaryRow}>
-          <Text style={[styles.summaryLabel, { color: colors.textMuted }]}>
+          <Text style={[styles.summaryLabel, { color: colors.textPrimary }]}>
             Zona de focalizare:
           </Text>
           <View style={styles.focusAreaContainer}>
-            <Text style={styles.focusAreaEmoji}>🏃</Text>
+            <View
+              style={[
+                styles.focusIconContainer,
+                {
+                  backgroundColor: isDarkMode
+                    ? 'rgba(163, 201, 168, 0.1)'
+                    : 'rgba(163, 201, 168, 0.1)',
+                },
+              ]}
+            >
+              <SvgIcon name="zap" size={14} color={colors.accentGreen} />
+            </View>
             <Text style={[styles.focusAreaText, { color: colors.textPrimary }]}>
               {summary.focusAreaText}
             </Text>
@@ -62,8 +104,19 @@ export const EnergySummaryCard: React.FC<EnergySummaryCardProps> = ({
         </View>
 
         {/* Recommendations */}
-        <View style={styles.recommendationsContainer}>
-          <Text style={[styles.recommendationsText, { color: '#A3C9A8' }]}>
+        <View
+          style={[
+            styles.recommendationsContainer,
+            {
+              borderTopColor: isDarkMode
+                ? 'rgba(75, 85, 99, 0.5)'
+                : 'rgba(229, 231, 235, 0.8)',
+            },
+          ]}
+        >
+          <Text
+            style={[styles.recommendationsText, { color: colors.textPrimary }]}
+          >
             {summary.recommendations}
           </Text>
         </View>
@@ -82,18 +135,22 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
     marginBottom: 16,
   },
-  headerIcon: {
-    fontSize: 20,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
   },
   summaryContent: {
-    gap: 12,
+    gap: 16,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -101,34 +158,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
   },
+  averageContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   summaryValue: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
+  },
+  averageIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   focusAreaContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
-  focusAreaEmoji: {
-    fontSize: 16,
+  focusIconContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   focusAreaText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
   },
   recommendationsContainer: {
     marginTop: 8,
-    paddingTop: 12,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(163, 201, 168, 0.2)',
   },
   recommendationsText: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
     fontWeight: '500',
   },

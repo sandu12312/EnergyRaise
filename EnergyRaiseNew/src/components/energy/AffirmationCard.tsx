@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '../../hooks/useTheme';
 import { getRandomAffirmation } from '../../data/energyBalanceData';
+import { SvgIcon } from '../ui/SvgIcon';
 
 interface AffirmationCardProps {
   initialAffirmation: string;
@@ -27,14 +28,27 @@ export const AffirmationCard: React.FC<AffirmationCardProps> = ({
       style={[
         styles.card,
         {
-          backgroundColor: isDarkMode ? '#4B5563' : '#F8FAFC',
-          borderColor: isDarkMode ? '#6B7280' : '#E5E7EB',
+          backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.8)' : '#FFFFFF',
+          borderColor: isDarkMode
+            ? 'rgba(75, 85, 99, 0.5)'
+            : 'rgba(229, 231, 235, 0.8)',
         },
       ]}
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerIcon}>⭐</Text>
+        <View
+          style={[
+            styles.iconContainer,
+            {
+              backgroundColor: isDarkMode
+                ? 'rgba(163, 201, 168, 0.1)'
+                : 'rgba(163, 201, 168, 0.1)',
+            },
+          ]}
+        >
+          <SvgIcon name="star" size={18} color={colors.accentGreen} />
+        </View>
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
           {category}
         </Text>
@@ -44,7 +58,14 @@ export const AffirmationCard: React.FC<AffirmationCardProps> = ({
       <View
         style={[
           styles.quoteContainer,
-          { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6' },
+          {
+            backgroundColor: isDarkMode
+              ? 'rgba(75, 85, 99, 0.2)'
+              : 'rgba(243, 244, 246, 0.7)',
+            borderColor: isDarkMode
+              ? 'rgba(75, 85, 99, 0.5)'
+              : 'rgba(229, 231, 235, 0.8)',
+          },
         ]}
       >
         <Text style={[styles.quoteText, { color: colors.textPrimary }]}>
@@ -57,18 +78,22 @@ export const AffirmationCard: React.FC<AffirmationCardProps> = ({
         style={[
           styles.generateButton,
           {
-            backgroundColor: isDarkMode ? '#6B7280' : '#E5E7EB',
-            borderColor: isDarkMode ? '#9CA3AF' : '#D1D5DB',
+            backgroundColor: isDarkMode
+              ? 'rgba(75, 85, 99, 0.2)'
+              : 'rgba(163, 201, 168, 0.1)',
           },
         ]}
         onPress={handleGenerateNewAffirmation}
-        activeOpacity={0.8}
+        activeOpacity={0.7}
       >
-        <Text
-          style={[styles.generateButtonText, { color: colors.textPrimary }]}
-        >
-          Generează altă afirmație
-        </Text>
+        <View style={styles.generateButtonContent}>
+          <SvgIcon name="zap" size={16} color={colors.accentGreen} />
+          <Text
+            style={[styles.generateButtonText, { color: colors.textPrimary }]}
+          >
+            Generează altă afirmație
+          </Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -84,37 +109,46 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
     marginBottom: 16,
   },
-  headerIcon: {
-    fontSize: 20,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
   },
   quoteContainer: {
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
   },
   quoteText: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: 'center',
     fontStyle: 'italic',
     fontWeight: '500',
   },
   generateButton: {
     borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     alignItems: 'center',
   },
+  generateButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   generateButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
 });
