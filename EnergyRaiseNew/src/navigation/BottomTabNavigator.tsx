@@ -8,7 +8,7 @@ import { useTheme } from '../hooks/useTheme';
 import { HomeScreen } from '../screens/HomeScreen';
 import { JournalScreen } from '../screens/JournalScreen';
 import { EnergyBalanceScreen } from '../screens/EnergyBalanceScreen';
-import { SoundsScreen } from '../screens/SoundsScreen';
+import { PackagesScreen } from '../screens/PackagesScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
@@ -53,17 +53,17 @@ const TabIcon: React.FC<{ name: string; size: number; color: string }> = ({
         />
       </Svg>
     ),
-    sounds: (
+    packages: (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <Path
-          d="M9 9a3 3 0 116 0c0 1-1 1-1 4v1a2 2 0 01-4 0v-1c0-3 0-3-1-4z"
+          d="M12 2L8 6 4 2v6l8 4 8-4V2l-4 4-4-4z"
           stroke={color}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <Path
-          d="M9 21h6"
+          d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"
           stroke={color}
           strokeWidth="2"
           strokeLinecap="round"
@@ -115,8 +115,8 @@ export const BottomTabNavigator: React.FC = () => {
             case 'EnergyBalanceTab':
               iconName = 'energy-balance';
               break;
-            case 'SoundsTab':
-              iconName = 'sounds';
+            case 'PackagesTab':
+              iconName = 'packages';
               break;
             case 'ProfileTab':
               iconName = 'profile';
@@ -174,10 +174,10 @@ export const BottomTabNavigator: React.FC = () => {
         }}
       />
       <Tab.Screen
-        name="SoundsTab"
-        component={SoundsScreen}
+        name="PackagesTab"
+        component={PackagesScreen}
         options={{
-          tabBarLabel: 'Sounds',
+          tabBarLabel: 'Pachete',
         }}
       />
       <Tab.Screen
