@@ -6,13 +6,15 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, LinearGradient, Defs, Stop } from 'react-native-svg';
 import { useTheme } from '../../hooks/useTheme';
 
 interface QuickAction {
   id: string;
   title: string;
   icon: string;
+  color?: string;
+  gradient?: string[];
   onPress: () => void;
 }
 
@@ -55,18 +57,23 @@ const StarIcon: React.FC<{ size: number; color: string }> = ({
 const ActionButton: React.FC<{
   title: string;
   icon: string;
+  color?: string;
+  gradient?: string[];
   onPress: () => void;
-}> = ({ title, icon, onPress }) => {
-  const { colors } = useTheme();
+}> = ({ title, icon, color, gradient, onPress }) => {
+  const { colors, theme } = useTheme();
+  const isDark = theme === 'dark';
+  const iconColor = color || colors.accentGreen;
+  const textColor = isDark ? '#FFFFFF' : '#1E293B';
 
   const getIcon = () => {
     switch (icon) {
       case 'chart':
-        return <ChartIcon size={32} color={colors.textMuted} />;
+        return <ChartIcon size={36} color={iconColor} />;
       case 'star':
-        return <StarIcon size={32} color={colors.accentGreen} />;
+        return <StarIcon size={36} color={iconColor} />;
       default:
-        return <ChartIcon size={32} color={colors.textMuted} />;
+        return <ChartIcon size={36} color={iconColor} />;
     }
   };
 
@@ -75,15 +82,36 @@ const ActionButton: React.FC<{
       style={[
         styles.actionButton,
         {
-          backgroundColor: colors.cardBackground,
-          borderColor: colors.border,
+          backgroundColor: isDark
+            ? 'rgba(31, 47, 63, 0.8)'
+            : 'rgba(255, 255, 255, 0.9)',
+          borderColor: isDark
+            ? 'rgba(255, 255, 255, 0.1)'
+            : 'rgba(139, 157, 195, 0.15)',
+          shadowColor: isDark ? iconColor : colors.accentGreen,
         },
       ]}
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={0.7}
+      accessibilityLabel={`${title} action button`}
+      accessibilityRole="button"
     >
-      <View style={styles.iconContainer}>{getIcon()}</View>
-      <Text style={[styles.actionTitle, { color: colors.textPrimary }]}>
+      <View
+        style={[
+          styles.iconBackground,
+          {
+            backgroundColor: isDark
+              ? 'rgba(31, 47, 63, 0.5)'
+              : 'rgba(255, 255, 255, 0.8)',
+          },
+        ]}
+      >
+        <View style={styles.iconContainer}>{getIcon()}</View>
+      </View>
+      <Text
+        style={[styles.actionTitle, { color: textColor }]}
+        numberOfLines={2}
+      >
         {title}
       </Text>
     </TouchableOpacity>
@@ -91,25 +119,37 @@ const ActionButton: React.FC<{
 };
 
 export const QuickActions: React.FC<QuickActionsProps> = ({ actions }) => {
-  const { colors } = useTheme();
+  const { colors, theme } = useTheme();
+  const isDark = theme === 'dark';
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <StarIcon size={20} color={colors.accentGreen} />
+        <StarIcon size={22} color={colors.accentGreen} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>
           Acțiuni Rapide
         </Text>
       </View>
 
       {/* Action Buttons */}
-      <View style={styles.actionsGrid}>
+      <View
+        style={[
+          styles.actionsGrid,
+          {
+            backgroundColor: isDark
+              ? 'rgba(31, 47, 63, 0.2)'
+              : 'rgba(255, 255, 255, 0.5)',
+          },
+        ]}
+      >
         {actions.map(action => (
           <ActionButton
             key={action.id}
             title={action.title}
             icon={action.icon}
+            color={action.color}
+            gradient={action.gradient}
             onPress={action.onPress}
           />
         ))}
@@ -127,34 +167,70 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginBottom: 4,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'Roboto',
   },
   actionsGrid: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    borderRadius: 18,
   },
   actionButton: {
     flex: 1,
-    padding: 20,
-    borderRadius: 16,
+    padding: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
+    borderRadius: 20,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    minHeight: 120,
+    gap: 14,
+    minHeight: 130,
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  iconBackground: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 8,
   },
   actionTitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'Roboto',
     textAlign: 'center',
+    marginHorizontal: 4,
   },
 });
