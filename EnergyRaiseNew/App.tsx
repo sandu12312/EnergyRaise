@@ -11,12 +11,17 @@ import { LoginScreen } from './src/screens/LoginScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
 import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
 import { BottomTabNavigator } from './src/navigation/BottomTabNavigator';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { auth } from './src/services/firebase';
 
 type ScreenType = 'welcome' | 'login' | 'register' | 'forgotPassword' | 'home';
 
-const App = () => {
+// Authenticated App Component
+const AuthenticatedApp = () => {
+  const { user, loading } = useAuth();
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('welcome');
   const [isReady, setIsReady] = useState(false);
+  const [hasCompletedQuiz, setHasCompletedQuiz] = useState(false);
 
   useEffect(() => {
     // Dă timp modulelor native să se inițializeze
@@ -27,9 +32,25 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    // If user is authenticated and has completed the quiz, go to home screen
+    if (user && hasCompletedQuiz) {
+      setCurrentScreen('home');
+    } else if (user && !hasCompletedQuiz) {
+      setCurrentScreen('welcome');
+    } else if (!user && hasCompletedQuiz) {
+      setCurrentScreen('login');
+    }
+  }, [user, hasCompletedQuiz]);
+
   // Navigation handlers
   const handleQuizComplete = () => {
-    setCurrentScreen('login');
+    setHasCompletedQuiz(true);
+    if (user) {
+      setCurrentScreen('home');
+    } else {
+      setCurrentScreen('login');
+    }
   };
 
   const handleLogin = () => {
@@ -90,18 +111,24 @@ const App = () => {
     }
   };
 
-  // Arată loading screen până se inițializează modulele native
-  if (!isReady) {
+  // Arată loading screen până se inițializează modulele native sau loading auth
+  if (!isReady || loading) {
     return (
-      <GestureHandlerRootView style={styles.loadingContainer}>
+      <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>EnergyRaise</Text>
-      </GestureHandlerRootView>
+      </View>
     );
   }
 
+  return renderScreen();
+};
+
+const App = () => {
   return (
     <GestureHandlerRootView style={styles.container}>
-      {renderScreen()}
+      <AuthProvider>
+        <AuthenticatedApp />
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 };

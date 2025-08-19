@@ -9,11 +9,14 @@ import {
   ScrollView,
   Platform,
   Image,
+  Alert,
 } from 'react-native';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useTheme } from '../hooks/useTheme';
+import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 interface LoginScreenProps {
   onLogin: () => void;
@@ -29,12 +32,51 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const { theme, colors } = useTheme();
+  const { setUser } = useAuth();
 
-  const handleLogin = () => {
-    // Dummy login - any input works
-    if (email.trim() && password.trim()) {
-      onLogin();
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const user = await authService.login(email, password);
+
+      if (!user.emailVerified) {
+        Alert.alert(
+          'Email Not Verified',
+          'Please verify your email before signing in. Check your inbox for a verification link.',
+          [
+            { text: 'OK', style: 'cancel' },
+            {
+              text: 'Resend Email',
+              onPress: async () => {
+                try {
+                  await authService.resendVerificationEmail();
+                  Alert.alert(
+                    'Success',
+                    'Verification email sent successfully',
+                  );
+                } catch (error: any) {
+                  Alert.alert('Error', error.message);
+                }
+              },
+            },
+          ],
+        );
+        await authService.logout();
+      } else {
+        setUser(user);
+        onLogin();
+      }
+    } catch (error: any) {
+      Alert.alert('Login Failed', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,9 +200,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
                 {/* Login Button - Compact */}
                 <Button
-                  title="Conectează-te"
+                  title={loading ? 'Se procesează...' : 'Conectează-te'}
                   onPress={handleLogin}
                   style={styles.loginButton}
+                  disabled={loading}
                 />
               </View>
 

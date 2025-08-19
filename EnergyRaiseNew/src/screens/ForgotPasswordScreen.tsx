@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  Alert,
 } from 'react-native';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card, CardContent } from '../components/ui/Card';
 import { useTheme } from '../hooks/useTheme';
+import { authService } from '../services/authService';
 
 interface ForgotPasswordScreenProps {
   onBackToLogin: () => void;
@@ -23,6 +25,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { theme, colors } = useTheme();
 
   // Simplified color scheme using theme colors
@@ -33,10 +36,20 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
     successText: theme === 'dark' ? '#6ee7b7' : '#047857',
   };
 
-  const handleSubmit = () => {
-    // Dummy data - any email works
-    if (email.trim()) {
+  const handleSubmit = async () => {
+    if (!email.trim()) {
+      Alert.alert('Eroare', 'Te rugăm să introduci adresa de email');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.resetPassword(email);
       setIsSubmitted(true);
+    } catch (error: any) {
+      Alert.alert('Eroare', error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -264,9 +277,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
             </View>
 
             <Button
-              title="Trimite instrucțiuni"
+              title={loading ? 'Se procesează...' : 'Trimite instrucțiuni'}
               onPress={handleSubmit}
               style={styles.submitButton}
+              disabled={loading}
             />
 
             <View style={styles.loginLink}>

@@ -15,6 +15,9 @@ import { Input } from '../components/ui/Input';
 import { Card, CardContent } from '../components/ui/Card';
 import { Checkbox } from '../components/ui/Checkbox';
 import { useTheme } from '../hooks/useTheme';
+import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
+import { firestoreService, UserData } from '../services/firestoreService';
 
 interface RegisterScreenProps {
   onRegister: () => void;
@@ -37,6 +40,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -47,6 +51,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
     receiveNewsletter: false,
   });
   const { theme, colors } = useTheme();
+  const { setUser } = useAuth();
 
   // Simplified background colors
   const backgroundColors = {
@@ -63,8 +68,23 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
     }));
   };
 
-  const handleSubmit = () => {
-    // Basic validation with dummy data acceptance
+  const handleSubmit = async () => {
+    // Form validation
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      Alert.alert('Eroare', 'Te rugăm să completezi numele și prenumele');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      Alert.alert('Eroare', 'Te rugăm să completezi adresa de email');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      Alert.alert('Eroare', 'Parola trebuie să conțină cel puțin 8 caractere');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       Alert.alert('Eroare', 'Parolele nu se potrivesc!');
       return;
@@ -75,8 +95,47 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
       return;
     }
 
-    // Dummy data - any input works for registration
-    onRegister();
+    setLoading(true);
+    try {
+      // Register the user with Firebase
+      const user = await authService.register(
+        formData.email,
+        formData.password,
+      );
+
+      // Store additional user data in Firestore
+      if (user && user.uid) {
+        const userData: UserData = {
+          uid: user.uid,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          createdAt: new Date(),
+          receiveNewsletter: formData.receiveNewsletter,
+        };
+
+        await firestoreService.setUserData(userData);
+      }
+
+      Alert.alert(
+        'Înregistrare reușită',
+        'Contul tău a fost creat. Te rugăm să verifici email-ul pentru a confirma adresa.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Automatically log out the user and go back to login
+              authService.logout();
+              onBackToLogin();
+            },
+          },
+        ],
+      );
+    } catch (error: any) {
+      Alert.alert('Eroare la înregistrare', error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -285,9 +344,10 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             </View>
 
             <Button
-              title="Creează contul"
+              title={loading ? 'Se procesează...' : 'Creează contul'}
               onPress={handleSubmit}
               style={styles.submitButton}
+              disabled={loading}
             />
 
             <View style={styles.loginLink}>
