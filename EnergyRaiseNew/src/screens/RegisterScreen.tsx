@@ -80,8 +80,8 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
       return;
     }
 
-    if (formData.password.length < 8) {
-      Alert.alert('Eroare', 'Parola trebuie să conțină cel puțin 8 caractere');
+    if (formData.password.length < 6) {
+      Alert.alert('Eroare', 'Parola trebuie să conțină cel puțin 6 caractere');
       return;
     }
 
@@ -97,14 +97,20 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
     setLoading(true);
     try {
+      console.log('Starting registration process...');
+
       // Register the user with Firebase
+      console.log('Calling authService.register...');
       const user = await authService.register(
-        formData.email,
+        formData.email.trim(),
         formData.password,
       );
 
+      console.log('Registration successful, user created:', user?.uid);
+
       // Store additional user data in Firestore
       if (user && user.uid) {
+        console.log('Creating user data for Firestore...');
         const userData: UserData = {
           uid: user.uid,
           firstName: formData.firstName,
@@ -114,7 +120,9 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           receiveNewsletter: formData.receiveNewsletter,
         };
 
+        console.log('Saving user data to Firestore...');
         await firestoreService.setUserData(userData);
+        console.log('User data saved to Firestore');
       }
 
       Alert.alert(
@@ -125,6 +133,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
             text: 'OK',
             onPress: () => {
               // Automatically log out the user and go back to login
+              console.log('Logging out user after successful registration');
               authService.logout();
               onBackToLogin();
             },
@@ -132,7 +141,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         ],
       );
     } catch (error: any) {
-      Alert.alert('Eroare la înregistrare', error.message);
+      console.error('Registration error in component:', error);
+      Alert.alert(
+        'Eroare la înregistrare',
+        error.message || 'A apărut o eroare. Te rugăm să încerci din nou.',
+      );
     } finally {
       setLoading(false);
     }

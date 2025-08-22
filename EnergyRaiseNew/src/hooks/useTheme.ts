@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Appearance } from 'react-native';
+import { storage, STORAGE_KEYS } from '../utils/storage';
 
 export type Theme = 'light' | 'dark';
 
@@ -15,6 +16,7 @@ export interface ThemeColors {
   cardGlassBg: string;
 
   // Text colors
+  text: string; // Default text color
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
@@ -57,6 +59,7 @@ const lightTheme: ThemeColors = {
   cardGlassBg: 'rgba(255, 255, 255, 0.75)',
 
   // Text colors din imagini
+  text: '#1a202c', // Default text color
   textPrimary: '#1a202c',
   textSecondary: '#4a5568',
   textMuted: '#64748b',
@@ -100,6 +103,7 @@ const darkTheme: ThemeColors = {
   cardGlassBg: 'rgba(31, 47, 63, 0.75)',
 
   // Text colors
+  text: '#F4F6F7', // Default text color
   textPrimary: '#F4F6F7',
   textSecondary: '#9BA8B0',
   textMuted: '#b0b0b0',
@@ -132,23 +136,49 @@ const darkTheme: ThemeColors = {
 };
 
 export const useTheme = () => {
-  // Use system theme exclusively
+  // Theme state with default system theme
   const [theme, setThemeState] = useState<Theme>(
     (Appearance.getColorScheme() as Theme) || 'light',
   );
+  const [isSystemTheme, setIsSystemTheme] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
   const [updateCounter, setUpdateCounter] = useState(0);
 
+  // Load saved theme preference
   useEffect(() => {
-    // Set initial system theme
-    const systemTheme = Appearance.getColorScheme() || 'light';
-    setThemeState(systemTheme as Theme);
-    setIsLoading(false);
+    const loadThemePreference = async () => {
+      try {
+        const savedTheme = await storage.getItem<{
+          theme: Theme;
+          isSystemTheme: boolean;
+        }>(STORAGE_KEYS.THEME);
 
-    // Listen for system theme changes
+        if (savedTheme) {
+          setThemeState(savedTheme.theme);
+          setIsSystemTheme(savedTheme.isSystemTheme);
+        } else {
+          // Default to system theme if no preference saved
+          const systemTheme = Appearance.getColorScheme() || 'light';
+          setThemeState(systemTheme as Theme);
+          setIsSystemTheme(true);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error loading theme preference:', error);
+        setIsLoading(false);
+      }
+    };
+
+    loadThemePreference();
+  }, []);
+
+  // Listen for system theme changes if using system theme
+  useEffect(() => {
+    if (!isSystemTheme) return;
+
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
       if (colorScheme && (colorScheme === 'light' || colorScheme === 'dark')) {
-        setThemeState(colorScheme);
+        setThemeState(colorScheme as Theme);
         setUpdateCounter(prev => prev + 1);
       }
     });
@@ -156,6 +186,34 @@ export const useTheme = () => {
     return () => {
       subscription.remove();
     };
+  }, [isSystemTheme]);
+
+  // Function to toggle theme manually
+  const toggleTheme = useCallback(async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setThemeState(newTheme);
+    setIsSystemTheme(false);
+    setUpdateCounter(prev => prev + 1);
+
+    // Save theme preference
+    await storage.setItem(STORAGE_KEYS.THEME, {
+      theme: newTheme,
+      isSystemTheme: false,
+    });
+  }, [theme]);
+
+  // Function to reset to system theme
+  const resetToSystemTheme = useCallback(async () => {
+    const systemTheme = Appearance.getColorScheme() || 'light';
+    setThemeState(systemTheme as Theme);
+    setIsSystemTheme(true);
+    setUpdateCounter(prev => prev + 1);
+
+    // Save theme preference
+    await storage.setItem(STORAGE_KEYS.THEME, {
+      theme: systemTheme as Theme,
+      isSystemTheme: true,
+    });
   }, []);
 
   const colors = theme === 'dark' ? darkTheme : lightTheme;
@@ -165,5 +223,8 @@ export const useTheme = () => {
     colors,
     isLoading,
     updateCounter,
+    toggleTheme,
+    resetToSystemTheme,
+    isSystemTheme,
   };
 };

@@ -21,117 +21,78 @@ The Firebase integration is structured as follows:
 
 ### Context
 
-- `src/context/AuthContext.tsx`: React Context for managing authentication state throughout the app
+- `src/context/AuthContext.tsx`: React context for managing authentication state
 
-## Setup Instructions
+## Troubleshooting Firebase Authentication Issues
 
-### 1. Firebase Console Setup
+### Common Issues and Solutions
 
-1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/)
-2. Add an iOS app and Android app with the respective bundle ID/package name
-3. Download the configuration files:
-   - iOS: `GoogleService-Info.plist`
-   - Android: `google-services.json`
-4. Place the configuration files in the correct locations:
-   - iOS: `/ios/GoogleService-Info.plist`
-   - Android: `/android/app/google-services.json`
+#### 1. Internal Error (auth/internal-error)
 
-### 2. Enable Authentication Methods
+This error typically occurs when:
 
-1. In the Firebase Console, go to Authentication → Sign-in method
-2. Enable Email/Password authentication
-3. Enable Email verification
+**Problem**: Firebase project doesn't have email/password authentication enabled
+**Solution**:
 
-### 3. Create Firestore Database
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project: `energyraise-de348`
+3. Navigate to Authentication > Sign-in method
+4. Enable "Email/Password" provider
+5. Save changes
 
-1. In the Firebase Console, go to Firestore Database
-2. Create a database with appropriate security rules
-3. Add initial collections if needed (e.g., users)
+**Problem**: Firebase project has restrictions or is in a different region
+**Solution**:
 
-### 4. Configure Storage Rules
+1. Check if your Firebase project is in the correct region
+2. Verify there are no billing or quota restrictions
+3. Ensure the project is not in a restricted organization
 
-1. In the Firebase Console, go to Storage
-2. Set up appropriate security rules for file access
+**Problem**: Network connectivity issues
+**Solution**:
 
-## Usage Instructions
+1. Check your internet connection
+2. Verify firewall settings
+3. Test with a different network if possible
 
-### Authentication
+#### 2. Configuration File Issues
 
-- Use `authService` for login, registration, password reset, and logout functionality
-- Access current user information through `useAuth()` hook
+**Problem**: GoogleService-Info.plist not found
+**Solution**:
 
-```typescript
-import { authService } from '../services/authService';
-import { useAuth } from '../context/AuthContext';
+1. Ensure GoogleService-Info.plist is in the correct location
+2. Add the file to your Xcode project
+3. Verify the bundle ID matches your Firebase project
 
-// In your component
-const { user, loading } = useAuth();
+#### 3. Build Configuration Issues
 
-// Login
-await authService.login(email, password);
+**Problem**: Firebase modules not linking properly
+**Solution**:
 
-// Register
-await authService.register(email, password);
+1. Run `cd ios && pod install` to update CocoaPods
+2. Clean and rebuild the project
+3. Verify all Firebase dependencies are properly installed
 
-// Password Reset
-await authService.resetPassword(email);
+## Testing Firebase Authentication
 
-// Logout
-await authService.logout();
-```
+To test if Firebase is working:
 
-### Firestore
+1. **Check Console Logs**: Look for Firebase initialization messages
+2. **Test Connection**: The app now includes connection testing
+3. **Verify Project Settings**: Ensure email/password auth is enabled
 
-- Use `firestoreService` for managing user data
+## Next Steps
 
-```typescript
-import { firestoreService, UserData } from '../services/firestoreService';
+If you're still experiencing issues:
 
-// Store user data
-const userData: UserData = {
-  uid: user.uid,
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john@example.com',
-  createdAt: new Date(),
-};
-await firestoreService.setUserData(userData);
+1. Check the Firebase Console for any error messages
+2. Verify your Firebase project configuration
+3. Test with a simple email/password combination
+4. Check network connectivity and firewall settings
 
-// Get user data
-const userData = await firestoreService.getUserData(user.uid);
+## Support
 
-// Update user data
-await firestoreService.updateUserData(user.uid, { firstName: 'Jane' });
-```
+For additional help:
 
-### Storage
-
-- Use `storageService` for uploading and managing files
-
-```typescript
-import { storageService } from '../services/storageService';
-
-// Upload profile image
-const downloadURL = await storageService.uploadProfileImage(user.uid, imageUri);
-
-// Get file URL
-const url = await storageService.getFileURL(path);
-
-// Delete file
-await storageService.deleteFile(path);
-```
-
-## Security Considerations
-
-- Never expose Firebase API keys or secrets in client-side code
-- Implement proper security rules in Firestore and Storage
-- Always verify user permissions on the server side before allowing data access
-- Set up Firebase Authentication triggers for user creation and deletion
-- Consider implementing additional security measures like rate limiting and IP blocking for sensitive operations
-
-## Troubleshooting
-
-- Check that configuration files are properly set up in both iOS and Android projects
-- Ensure Firebase services are enabled in the Firebase Console
-- Verify that all required dependencies are installed
-- Check logs for error messages and authentication failures
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [React Native Firebase](https://rnfirebase.io/)
+- [Firebase Console](https://console.firebase.google.com/)

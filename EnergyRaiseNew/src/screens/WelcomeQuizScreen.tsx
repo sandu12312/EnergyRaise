@@ -8,7 +8,11 @@ import {
   ScrollView,
   Platform,
   Dimensions,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
+import { useAuth } from '../context/AuthContext';
+import { quizService } from '../services/quizService';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -352,18 +356,44 @@ const SimpleIcon: React.FC<{ size?: number; color: string }> = ({
 export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
   onComplete,
 }) => {
-  const { colors, theme, isLoading } = useTheme();
+  const { colors, theme, isLoading: themeLoading } = useTheme();
+  const { user } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isCompleted, setIsCompleted] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isCheckingQuizStatus, setIsCheckingQuizStatus] = useState(true);
 
   // Animation values
   const questionScale = useSharedValue(1);
   const questionOpacity = useSharedValue(1);
   const cardScale = useSharedValue(0.95);
   const cardOpacity = useSharedValue(0);
+
+  // Check if user has already completed the quiz
+  useEffect(() => {
+    const checkQuizStatus = async () => {
+      if (user) {
+        try {
+          const hasCompleted = await quizService.hasCompletedQuiz(user.uid);
+          if (hasCompleted) {
+            // User has already completed the quiz, skip to completion
+            onComplete();
+          }
+        } catch (error) {
+          console.error('Error checking quiz status:', error);
+        } finally {
+          setIsCheckingQuizStatus(false);
+        }
+      } else {
+        setIsCheckingQuizStatus(false);
+      }
+    };
+
+    checkQuizStatus();
+  }, [user, onComplete]);
 
   useEffect(() => {
     // Initial card animation
@@ -472,7 +502,7 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
     opacity: questionOpacity.value,
   }));
 
-  if (isLoading) {
+  if (themeLoading || isCheckingQuizStatus) {
     return (
       <SafeAreaView
         style={[
@@ -482,6 +512,11 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
       >
         <View style={styles.loadingContainer}>
           <SimpleIcon size={48} color={colors.accentGreen} />
+          <ActivityIndicator
+            size="large"
+            color={colors.accentGreen}
+            style={{ marginTop: 20 }}
+          />
         </View>
       </SafeAreaView>
     );
@@ -568,13 +603,37 @@ export const WelcomeQuizScreen: React.FC<WelcomeQuizProps> = ({
                 {/* CTA Button */}
                 <View style={styles.ctaButtonContainer}>
                   <Button
-                    title="Începe Transformarea Ta"
-                    onPress={onComplete}
+                    title={
+                      isSaving ? 'Se salvează...' : 'Începe Transformarea Ta'
+                    }
+                    onPress={async () => {
+                      if (user) {
+                        try {
+                          setIsSaving(true);
+                          await quizService.saveQuizAnswers(user.uid, answers);
+                          onComplete();
+                        } catch (error) {
+                          console.error('Error saving quiz answers:', error);
+                          Alert.alert(
+                            'Eroare',
+                            'A apărut o eroare la salvarea răspunsurilor. Te rugăm să încerci din nou.',
+                          );
+                          setIsSaving(false);
+                        }
+                      } else {
+                        // If user is not logged in yet, just complete the quiz
+                        // The answers will be saved later when they register
+                        onComplete();
+                      }
+                    }}
                     variant="default"
                     size="lg"
                     fullWidth
+                    disabled={isSaving}
                     icon={
-                      <SvgIcon name="arrow-right" size={20} color="white" />
+                      isSaving ? undefined : (
+                        <SvgIcon name="arrow-right" size={20} color="white" />
+                      )
                     }
                   />
                 </View>

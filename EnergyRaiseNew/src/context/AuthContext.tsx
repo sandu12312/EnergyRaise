@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { auth } from '../services/firebase';
-import { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import {
+  FirebaseAuthTypes,
+  getAuth,
+  onAuthStateChanged,
+} from '@react-native-firebase/auth';
 
 type User = FirebaseAuthTypes.User;
 
@@ -27,14 +30,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Subscribe to auth state changes
-    const unsubscribe = auth().onAuthStateChanged(currentUser => {
+    // Subscribe to auth state changes (modular API)
+    const subscriber = onAuthStateChanged(getAuth(), currentUser => {
       setUser(currentUser);
       setLoading(false);
     });
 
     // Cleanup subscription
-    return unsubscribe;
+    return subscriber;
   }, []);
 
   const value = {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,12 @@ import {
   Platform,
   Switch,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';
 import { SvgIcon } from '../components/ui/SvgIcon';
+import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 import { Card, CardContent } from '../components/ui/Card';
 
 interface ProfileScreenProps {
@@ -19,25 +22,47 @@ interface ProfileScreenProps {
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
-  const { theme, colors } = useTheme();
+  const { theme, colors, toggleTheme } = useTheme();
   const isDarkMode = theme === 'dark';
+  const { user } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
-  // Dummy data
+  // Format user data from Firebase Auth
+  const userEmail = user?.email || 'Utilizator';
+  const userName = userEmail.split('@')[0] || 'Utilizator';
+  const userInitials = userName.substring(0, 2).toUpperCase();
+
+  // Format creation date
+  const creationTime = user?.metadata?.creationTime;
+  const memberSince = creationTime
+    ? new Date(creationTime).toLocaleDateString('ro-RO', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : 'Membru nou';
+
+  // User data
   const userData = {
-    name: 'Ana Popescu',
-    email: 'ana.popescu@email.com',
-    memberSince: '15 ian 2024',
+    name: userName,
+    email: userEmail,
+    memberSince: memberSince,
     stats: {
-      consecutiveDays: 7,
+      consecutiveDays: 7, // These would come from Firestore in a real app
       totalSessions: 45,
     },
-    initials: 'AP',
+    initials: userInitials,
   };
 
-  // Toggle states
+  // Toggle states - sync with actual theme
   const [darkModeEnabled, setDarkModeEnabled] = React.useState(isDarkMode);
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [autoTrackingEnabled, setAutoTrackingEnabled] = React.useState(false);
+
+  // Keep dark mode switch in sync with theme
+  React.useEffect(() => {
+    setDarkModeEnabled(isDarkMode);
+  }, [isDarkMode]);
 
   const handleBackPress = () => {
     if (navigation) {
@@ -84,9 +109,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       {
         text: 'Deconectează-te',
         style: 'destructive',
-        onPress: () => {
-          // Logout logic here
-          Alert.alert('Deconectat', 'Te-ai deconectat cu succes.');
+        onPress: async () => {
+          try {
+            setIsLoggingOut(true);
+            await authService.logout();
+            // No need to show alert as the app will automatically navigate to login screen
+          } catch (error) {
+            Alert.alert(
+              'Eroare',
+              'A apărut o eroare la deconectare. Încearcă din nou.',
+            );
+            console.error('Logout error:', error);
+          } finally {
+            setIsLoggingOut(false);
+          }
         },
       },
     ]);
@@ -263,7 +299,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               'Schimbă aspectul aplicației',
               <Switch
                 value={darkModeEnabled}
-                onValueChange={setDarkModeEnabled}
+                onValueChange={value => {
+                  setDarkModeEnabled(value);
+                  toggleTheme();
+                }}
                 trackColor={{
                   false: isDarkMode ? '#4B5563' : '#E5E7EB',
                   true: '#A3C9A8',
@@ -407,9 +446,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             },
           ]}
           onPress={handleLogout}
+          disabled={isLoggingOut}
         >
-          <SvgIcon name="log-out" size={20} color="#EF4444" />
-          <Text style={styles.logoutText}>Deconectează-te</Text>
+          {isLoggingOut ? (
+            <ActivityIndicator size="small" color="#EF4444" />
+          ) : (
+            <>
+              <SvgIcon name="log-out" size={20} color="#EF4444" />
+              <Text style={styles.logoutText}>Deconectează-te</Text>
+            </>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

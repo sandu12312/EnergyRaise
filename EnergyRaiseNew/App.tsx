@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { WelcomeQuizScreen } from './src/screens/WelcomeQuizScreen';
@@ -13,6 +13,8 @@ import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
 import { BottomTabNavigator } from './src/navigation/BottomTabNavigator';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { auth } from './src/services/firebase';
+import { quizService } from './src/services/quizService';
+import { storage, STORAGE_KEYS } from './src/utils/storage';
 
 type ScreenType = 'welcome' | 'login' | 'register' | 'forgotPassword' | 'home';
 
@@ -22,6 +24,7 @@ const AuthenticatedApp = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('welcome');
   const [isReady, setIsReady] = useState(false);
   const [hasCompletedQuiz, setHasCompletedQuiz] = useState(false);
+  const [isCheckingQuiz, setIsCheckingQuiz] = useState(true);
 
   useEffect(() => {
     // Dă timp modulelor native să se inițializeze
@@ -32,6 +35,33 @@ const AuthenticatedApp = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Check if user has completed the quiz
+  useEffect(() => {
+    const checkQuizStatus = async () => {
+      try {
+        if (user) {
+          // Check if user has completed the quiz
+          const completed = await quizService.hasCompletedQuiz(user.uid);
+          setHasCompletedQuiz(completed);
+        } else {
+          // Check if we have a local record of quiz completion
+          const localCompleted = await storage.getItem<boolean>(
+            STORAGE_KEYS.USER_QUIZ_COMPLETED,
+          );
+          setHasCompletedQuiz(!!localCompleted);
+        }
+      } catch (error) {
+        console.error('Error checking quiz status:', error);
+      } finally {
+        setIsCheckingQuiz(false);
+      }
+    };
+
+    if (isReady && !loading) {
+      checkQuizStatus();
+    }
+  }, [user, isReady, loading]);
+
   useEffect(() => {
     // If user is authenticated and has completed the quiz, go to home screen
     if (user && hasCompletedQuiz) {
@@ -40,6 +70,8 @@ const AuthenticatedApp = () => {
       setCurrentScreen('welcome');
     } else if (!user && hasCompletedQuiz) {
       setCurrentScreen('login');
+    } else if (!user && !hasCompletedQuiz) {
+      setCurrentScreen('welcome');
     }
   }, [user, hasCompletedQuiz]);
 
@@ -111,11 +143,16 @@ const AuthenticatedApp = () => {
     }
   };
 
-  // Arată loading screen până se inițializează modulele native sau loading auth
-  if (!isReady || loading) {
+  // Arată loading screen până se inițializează modulele native, loading auth, sau verificarea quiz-ului
+  if (!isReady || loading || isCheckingQuiz) {
     return (
       <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>EnergyRaise</Text>
+        <ActivityIndicator
+          size="large"
+          color="#A3C9A8"
+          style={{ marginTop: 20 }}
+        />
       </View>
     );
   }

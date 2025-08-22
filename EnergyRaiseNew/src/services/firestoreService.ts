@@ -1,4 +1,12 @@
 import { firestore } from './firebase';
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+} from '@react-native-firebase/firestore';
 
 /**
  * User data interface
@@ -11,6 +19,8 @@ export interface UserData {
   createdAt: Date;
   receiveNewsletter?: boolean;
   profileImageUrl?: string;
+  quizCompleted?: boolean;
+  lastLoginAt?: Date;
 }
 
 /**
@@ -23,17 +33,18 @@ export const firestoreService = {
    */
   setUserData: async (userData: UserData): Promise<void> => {
     try {
-      await firestore()
-        .collection('users')
-        .doc(userData.uid)
-        .set(
-          {
-            ...userData,
-            createdAt: userData.createdAt || new Date(),
-            updatedAt: new Date(),
-          },
-          { merge: true },
-        );
+      const usersRef = collection(firestore, 'users');
+      const userDocRef = doc(usersRef, userData.uid);
+
+      await setDoc(
+        userDocRef,
+        {
+          ...userData,
+          createdAt: userData.createdAt || new Date(),
+          updatedAt: new Date(),
+        },
+        { merge: true },
+      );
     } catch (error: any) {
       throw new Error(`Error setting user data: ${error.message}`);
     }
@@ -46,9 +57,11 @@ export const firestoreService = {
    */
   getUserData: async (uid: string): Promise<UserData | null> => {
     try {
-      const userDoc = await firestore().collection('users').doc(uid).get();
+      const usersRef = collection(firestore, 'users');
+      const userDocRef = doc(usersRef, uid);
+      const userDoc = await getDoc(userDocRef);
 
-      if (userDoc.exists) {
+      if (userDoc.exists()) {
         return userDoc.data() as UserData;
       }
       return null;
@@ -67,13 +80,17 @@ export const firestoreService = {
     data: Partial<UserData>,
   ): Promise<void> => {
     try {
-      await firestore()
-        .collection('users')
-        .doc(uid)
-        .update({
+      const usersRef = collection(firestore, 'users');
+      const userDocRef = doc(usersRef, uid);
+      // Use setDoc with merge to avoid not-found when doc doesn't exist
+      await setDoc(
+        userDocRef,
+        {
           ...data,
           updatedAt: new Date(),
-        });
+        },
+        { merge: true },
+      );
     } catch (error: any) {
       throw new Error(`Error updating user data: ${error.message}`);
     }
@@ -85,7 +102,10 @@ export const firestoreService = {
    */
   deleteUserData: async (uid: string): Promise<void> => {
     try {
-      await firestore().collection('users').doc(uid).delete();
+      const usersRef = collection(firestore, 'users');
+      const userDocRef = doc(usersRef, uid);
+
+      await deleteDoc(userDocRef);
     } catch (error: any) {
       throw new Error(`Error deleting user data: ${error.message}`);
     }
